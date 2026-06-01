@@ -19,7 +19,7 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## [Sin publicar]
+## [1.0.0] - 2026-06-01
 
 ### Añadido
 
@@ -34,6 +34,10 @@ Los cambios se agrupan en las siguientes categorías:
 - Plugins integrados: `FallbackPlugin` y `WeatherPlugin`.
 - Suite completa de tests unitarios y de integración con pytest.
 - Dockerfile multiplataforma para levantar el servicio.
+
+---
+
+## [Sin publicar]
 
 ---
 
