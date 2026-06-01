@@ -34,24 +34,45 @@ La arquitectura se divide en los siguientes componentes principales:
 
 El ciclo de vida de una petición sigue estos pasos:
 
-```mermaid
-sequenceDiagram
-    participant Cliente STT
-    participant API Layer
-    participant Router
-    participant Plugin Manager
-    participant Plugin (Ej: WeatherPlugin)
-    
-    Cliente STT->>API Layer: POST /api/v1/execute {"text": "¿Qué tiempo hace hoy?"}
-    API Layer->>Router: route_request(UserRequest)
-    Router->>Plugin Manager: get_active_plugins()
-    Plugin Manager-->>Router: [WeatherPlugin, CalendarPlugin, ...]
-    Router->>Router: Calcular scores (Keywords/Regex)
-    Router-->>API Layer: Plugin ganador (WeatherPlugin)
-    API Layer->>Plugin: execute(PluginContext)
-    Plugin->>Plugin: Obtener datos meteorológicos
-    Plugin-->>API Layer: PluginResult(success=True, speech="Hoy hace sol")
-    API Layer-->>Cliente STT: AssistantResponse(speech="Hoy hace sol")
+```text
++-------------+         +-----------+        +--------+        +----------------+       +---------------+
+| Cliente STT |         | API Layer |        | Router |        | Plugin Manager |       | WeatherPlugin |
++-------------+         +-----------+        +--------+        +----------------+       +---------------+
+       |                      |                  |                     |                        |
+       | POST /api/v1/execute |                  |                     |                        |
+       | {"text": "..."}      |                  |                     |                        |
+       |--------------------->|                  |                     |                        |
+       |                      | route_request()  |                     |                        |
+       |                      |----------------->|                     |                        |
+       |                      |                  | get_active_plugins()|                        |
+       |                      |                  |-------------------->|                        |
+       |                      |                  |                     |                        |
+       |                      |                  | [Plugins...]        |                        |
+       |                      |                  |<--------------------|                        |
+       |                      |                  |                     |                        |
+       |                      |                  | Calcular scores     |                        |
+       |                      |                  |-----------------+   |                        |
+       |                      |                  |                 |   |                        |
+       |                      |                  |<----------------+   |                        |
+       |                      |                  |                     |                        |
+       |                      | Plugin ganador   |                     |                        |
+       |                      |<-----------------|                     |                        |
+       |                      |                  |                     |                        |
+       |                      | execute(Context) |                     |                        |
+       |                      |---------------------------------------------------------------->|
+       |                      |                  |                     |                        |
+       |                      |                  |                     |   Obtener clima        |
+       |                      |                  |                     |   ------------------+  |
+       |                      |                  |                     |                     |  |
+       |                      |                  |                     |   <-----------------+  |
+       |                      |                  |                     |                        |
+       |                      | PluginResult(success=True, speech="Hoy hace sol")               |
+       |                      |<----------------------------------------------------------------|
+       |                      |                  |                     |                        |
+       | AssistantResponse    |                  |                     |                        |
+       |<---------------------|                  |                     |                        |
+       |                      |                  |                     |                        |
++-------------+         +-----------+        +--------+        +----------------+       +---------------+
 ```
 
 ## 5. Sistema de plugins
