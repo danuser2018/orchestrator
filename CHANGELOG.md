@@ -24,7 +24,8 @@ Los cambios se agrupan en las siguientes categorías:
 ### Añadido
 
 - Archivo CONTRIBUTING.md para guiar el desarrollo y las contribuciones al proyecto.
-- Archivo CHAGENLOG.md para registrar los cambios de manera consistente. 
+- Archivo CHAGENLOG.md para registrar los cambios de manera consistente.
+- Especificación técnica definida en README.md
 
 ---
 
