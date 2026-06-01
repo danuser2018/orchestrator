@@ -26,6 +26,13 @@ Los cambios se agrupan en las siguientes categorías:
 - Archivo CONTRIBUTING.md para guiar el desarrollo y las contribuciones al proyecto.
 - Archivo CHAGENLOG.md para registrar los cambios de manera consistente.
 - Especificación técnica definida en README.md
+- Implementación inicial del motor del Orchestrator y API (FastAPI).
+- Modelos Pydantic para `UserRequest`, `PluginContext`, `PluginResult`, `AssistantResponse`.
+- Motor de enrutamiento basado en puntuación (keywords y regex).
+- `PluginManager` para descubrimiento dinámico de plugins.
+- Plugins integrados: `FallbackPlugin` y `WeatherPlugin`.
+- Suite completa de tests unitarios y de integración con pytest.
+- Dockerfile multiplataforma para levantar el servicio.
 
 ---
 
