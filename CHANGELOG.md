@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.1.0] - 2026-06-04
+
+### Añadido
+- Archivo doc/plugins/greetings.md donde se describe el plugin de saludo.
+- Implementación del plugin de saludo (`GreetingPlugin`).
+
 ## [1.0.0] - 2026-06-01
 
 ### Añadido
@@ -38,8 +44,6 @@ Los cambios se agrupan en las siguientes categorías:
 ---
 
 ## [Sin publicar]
-
-- Archivo doc/plugins/greetings.md donde se describe el plugin de saludo.
 
 ---
 
