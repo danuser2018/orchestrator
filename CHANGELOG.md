@@ -39,6 +39,8 @@ Los cambios se agrupan en las siguientes categorías:
 
 ## [Sin publicar]
 
+- Archivo doc/plugins/greetings.md donde se describe el plugin de saludo.
+
 ---
 
 <!-- Plantilla para nuevas versiones:
