@@ -1,3 +1,8 @@
+def test_health_check(client):
+    response = client.get("api/v1/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
 def test_execute_weather(client):
     response = client.post("/api/v1/execute", json={"text": "¿Qué tiempo hace hoy?"})
     assert response.status_code == 200

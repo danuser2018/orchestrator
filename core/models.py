@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 
+class HealthResponse(BaseModel):
+    status: str
+
 class UserRequest(BaseModel):
     text: str
 

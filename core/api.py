@@ -1,10 +1,14 @@
 import time
 from fastapi import APIRouter, Request
-from .models import UserRequest, AssistantResponse, PluginResult
+from .models import UserRequest, AssistantResponse, PluginResult, HealthResponse
 from .engine import Router
 from .logger import logger
 
 router = APIRouter()
+
+@router.get("/health", response_model=HealthResponse)
+def health_check():
+    return {"status": "ok"}
 
 @router.post("/execute", response_model=AssistantResponse)
 async def execute_request(request: Request, user_request: UserRequest):
