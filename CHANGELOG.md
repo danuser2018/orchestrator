@@ -19,6 +19,11 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.2.0] - 2026-06-06
+
+### Añadido
+- Nuevo endpoint /api/v1/healtcheck que permite comprobar si el servicio está levantado
+
 ## [1.1.0] - 2026-06-04
 
 ### Añadido
