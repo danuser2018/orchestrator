@@ -19,14 +19,22 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.3.0] - 2026-06-07
+
+### Añadido
+
+- Nuevo plugin de despedida (`FarewellPlugin`).
+
 ## [1.2.0] - 2026-06-06
 
 ### Añadido
+
 - Nuevo endpoint /api/v1/healtcheck que permite comprobar si el servicio está levantado
 
 ## [1.1.0] - 2026-06-04
 
 ### Añadido
+
 - Archivo doc/plugins/greetings.md donde se describe el plugin de saludo.
 - Implementación del plugin de saludo (`GreetingPlugin`).
 
