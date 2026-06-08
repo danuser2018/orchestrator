@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [Sin publicar]
+
+### Añadido
+
+- Nuevo documento TONE_GUIDE.md donde se explica el tono que deben usar los plugins en sus respuestas.
+
 ## [1.3.0] - 2026-06-07
 
 ### Añadido
