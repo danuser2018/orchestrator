@@ -19,11 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## [Sin publicar]
+## [1.4.0] - 2026-06-13
 
 ### Añadido
 
 - Nuevo documento TONE_GUIDE.md donde se explica el tono que deben usar los plugins en sus respuestas.
+- GreetingPlugin, FarewellPlugin y FallbackPlugin adaptados al tone guide.
 
 ## [1.3.0] - 2026-06-07
 

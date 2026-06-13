@@ -1,5 +1,10 @@
+import random
+import logging
 from core.models import PluginContext, PluginResult
 from plugins.base import Plugin
+from typing import List
+
+logger = logging.getLogger(__name__)
 
 class FallbackPlugin(Plugin):
     @property
@@ -15,8 +20,26 @@ class FallbackPlugin(Plugin):
         return []
 
     async def execute(self, context: PluginContext) -> PluginResult:
-        return PluginResult(
-            success=False,
-            speech="Lo siento, no he entendido qué quieres hacer.",
-            data={"reason": "no_match"}
-        )
+        logger.debug("FallbackPlugin selected")
+
+        try:
+            responses = [
+                "No he entendido la petición.",
+                "No he entendido la orden.",
+                "Petición no reconocida."
+            ]
+
+            selected_response = random.choice(responses)
+            logger.debug(f"Selected response: {selected_response}")
+
+            return PluginResult(
+                success=False,
+                speech=selected_response,
+                data={"reason": "no_match"}
+            )
+        except Exception as e:
+            logger.error(f"Error executing FallbackPlugin: {e}", exc_info=True)
+            return PluginResult(
+                success=False,
+                speech="No he podido completar la operación."
+            )

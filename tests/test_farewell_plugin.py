@@ -13,14 +13,11 @@ async def test_farewell_plugin_execution(plugin):
 
     assert result.success is True
     assert result.speech in [
-	       "Hasta pronto",
-               "Nos vemos",
-	       "Hasta luego",
-               "Perfecto",
-               "Cuando necesites algo más, aquí estaré",
-               "Vuelve cuando quieras",
-               "Me alegra ser de ayuda",
-               "Estoy aquí mismo, si necesitas ayuda de nuevo"
+               "Adiós.",
+	       "Hasta pronto.",
+	       "Hasta luego.",
+               "Vale.",
+               "De acuerdo."
    ]
 
 def test_farewell_plugin_keywords_and_regex(plugin):

@@ -12,13 +12,46 @@ def test_execute_weather(client):
     assert "grados" in data["speech"]
     assert "execution_time_ms" in data
 
+def test_execute_greetings(client):
+    response = client.post("/api/v1/execute", json={"text": "Hola"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["plugin_used"] == "GreetingPlugin"
+    assert data["speech"]  in [
+        "Buenos días.",
+        "Buenas tardes.",
+        "Buenas noches.",
+        "Hola"
+    ]
+    assert "execution_time_ms" in data
+
+def test_execute_farewell(client):
+    response = client.post("/api/v1/execute", json={"text": "Adios"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["plugin_used"] == "FarewellPlugin"
+    assert data["speech"]  in [
+        "Adiós.",
+        "Hasta pronto.",
+        "Hasta luego.",
+        "Vale.",
+        "De acuerdo."
+    ]
+    assert "execution_time_ms" in data
+
 def test_execute_fallback(client):
     response = client.post("/api/v1/execute", json={"text": "Algo que no entiendes"})
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is False
     assert data["plugin_used"] == "FallbackPlugin"
-    assert data["speech"] == "Lo siento, no he entendido qué quieres hacer."
+    assert data["speech"] in [
+        "No he entendido la petición.",
+        "No he entendido la orden.",
+        "Petición no reconocida."
+    ]
 
 def test_execute_empty_request(client):
     response = client.post("/api/v1/execute", json={})
