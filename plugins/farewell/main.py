@@ -44,14 +44,11 @@ class FarewellPlugin(Plugin):
 
         try:
             responses = [
-	       "Hasta pronto",
-               "Nos vemos",
-	       "Hasta luego",
-               "Perfecto",
-               "Cuando necesites algo más, aquí estaré",
-               "Vuelve cuando quieras",
-               "Me alegra ser de ayuda",
-               "Estoy aquí mismo, si necesitas ayuda de nuevo"
+               "Adiós.",
+	       "Hasta pronto.",
+	       "Hasta luego.",
+               "Vale.",
+               "De acuerdo."
             ]
 
             selected_response = random.choice(responses)
@@ -65,6 +62,6 @@ class FarewellPlugin(Plugin):
             logger.error(f"Error executing FarewellPlugin: {e}", exc_info=True)
             return PluginResult(
                 success=False,
-                speech="Ha ocurrido un error al procesar el mensaje de despedida."
+                speech="No he podido completar la operación."
             )
 

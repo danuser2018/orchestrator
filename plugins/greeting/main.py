@@ -53,28 +53,19 @@ class GreetingPlugin(Plugin):
                 logger.debug("Detected greeting period: morning")
                 responses = [
                     "Buenos días.",
-                    "Buenos días, te escucho.",
-                    "Hola, buenos días.",
-                    "Buenos días. ¿Qué necesitas?",
-                    "Hola. ¿En qué puedo ayudarte?"
+                    "Hola."
                 ]
             elif 12 <= current_hour < 21:
                 logger.debug("Detected greeting period: afternoon")
                 responses = [
                     "Buenas tardes.",
-                    "Buenas tardes, te escucho.",
-                    "Hola, buenas tardes.",
-                    "Buenas tardes. ¿Qué necesitas?",
-                    "Hola. ¿En qué puedo ayudarte?"
+                    "Hola.",
                 ]
             else:
                 logger.debug("Detected greeting period: evening")
                 responses = [
                     "Buenas noches.",
-                    "Buenas noches, te escucho.",
-                    "Hola, buenas noches.",
-                    "Buenas noches. ¿Qué necesitas?",
-                    "Hola. ¿En qué puedo ayudarte?"
+                    "Hola.",
                 ]
                 
             selected_response = random.choice(responses)
@@ -88,5 +79,5 @@ class GreetingPlugin(Plugin):
             logger.error(f"Error executing GreetingPlugin: {e}", exc_info=True)
             return PluginResult(
                 success=False,
-                speech="Ha ocurrido un error al procesar el saludo."
+                speech="No he podido completar la operación."
             )
