@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## Sin plublicar
+
+### Añadido
+
+- Nuevo documento explicativo del plugin de identity.
+
 ## [1.4.0] - 2026-06-13
 
 ### Añadido
