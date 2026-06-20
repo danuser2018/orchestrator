@@ -23,6 +23,7 @@ Los cambios se agrupan en las siguientes categorías:
 
 ### Añadido
 
+- Implementación del plugin de identidad (`IdentityPlugin`) para responder a consultas sobre quién es el asistente.
 - Nuevo documento explicativo del plugin de identity.
 
 ## [1.4.0] - 2026-06-13
