@@ -25,7 +25,7 @@ def test_execute_greetings(client):
         "Buenos días.",
         "Buenas tardes.",
         "Buenas noches.",
-        "Hola"
+        "Hola."
     ]
     assert "execution_time_ms" in data
 
