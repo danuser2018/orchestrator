@@ -1,3 +1,6 @@
+from unittest.mock import patch, AsyncMock
+from plugins.identity.client import SystemInfo
+
 def test_health_check(client):
     response = client.get("api/v1/health")
     assert response.status_code == 200
@@ -22,7 +25,7 @@ def test_execute_greetings(client):
         "Buenos días.",
         "Buenas tardes.",
         "Buenas noches.",
-        "Hola"
+        "Hola."
     ]
     assert "execution_time_ms" in data
 
@@ -60,3 +63,19 @@ def test_execute_empty_request(client):
 def test_execute_invalid_schema(client):
     response = client.post("/api/v1/execute", json={"mensaje": "Hola"})
     assert response.status_code == 422
+
+def test_execute_identity(client):
+    mock_info = SystemInfo(
+        name="Nova",
+        author="David",
+        version="2.5.0",
+        description="Asistente personal de voz y automatización"
+    )
+    with patch("plugins.identity.client.SystemServiceClient.get_system_info", new_callable=AsyncMock) as mock_get:
+        mock_get.return_value = mock_info
+        response = client.post("/api/v1/execute", json={"text": "¿Quién eres?"})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["plugin_used"] == "IdentityPlugin"
+        assert data["speech"] == "Soy Nova-2, tu sistema local de automatización."
