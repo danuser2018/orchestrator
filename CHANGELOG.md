@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.6.0] - 2026-06-23
+
+### Corregido
+
+- Valor incorrecto de retorno para el plugin de fallback. Cuando responde este plugin, se estaba considerando la respuesta errónea, por lo que saltaba el control de errores.
+
 ## [1.5.0] - 2026-06-20
 
 ### Añadido
