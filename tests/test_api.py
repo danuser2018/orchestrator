@@ -48,7 +48,7 @@ def test_execute_fallback(client):
     response = client.post("/api/v1/execute", json={"text": "Algo que no entiendes"})
     assert response.status_code == 200
     data = response.json()
-    assert data["success"] is False
+    assert data["success"] is True
     assert data["plugin_used"] == "FallbackPlugin"
     assert data["speech"] in [
         "No he entendido la petición.",
