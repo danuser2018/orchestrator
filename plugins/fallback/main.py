@@ -33,7 +33,7 @@ class FallbackPlugin(Plugin):
             logger.debug(f"Selected response: {selected_response}")
 
             return PluginResult(
-                success=False,
+                success=True,
                 speech=selected_response,
                 data={"reason": "no_match"}
             )
