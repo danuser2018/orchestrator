@@ -19,11 +19,15 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## Sin publicar
+## [1.8.0] - 2026-06-28
 
 ### Añadido
 
 - Documento `capabilities.md` donde se explica el plugin para listar capabilities disponibles.
+- Implementación de `CapabilitiesPlugin` en `plugins/capabilities/main.py` para responder preguntas sobre las capacidades de Nova y enviar el detalle por correo electrónico a través de `mail-watchdog`.
+- Nuevas propiedades `user_email` y `mail_pending_dir` añadidas a la configuración centralizada en `core/config.py`.
+- Nuevo método `get_capabilities` y estructuras de datos asociadas en `SystemServiceClient`.
+- Suite de pruebas unitarias en `tests/test_capabilities_plugin.py`.
 
 ## [1.7.0] - 2026-06-28
 

@@ -12,6 +12,13 @@ class SystemInfo(BaseModel):
     version: str
     description: str
 
+class Capability(BaseModel):
+    id: str
+    description: str
+
+class CapabilityList(BaseModel):
+    capabilities: List[Capability]
+
 class SystemServiceClient:
     def __init__(self, base_url: str = None):
         self.base_url = base_url or settings.system_service_base_url
@@ -34,3 +41,13 @@ class SystemServiceClient:
             response.raise_for_status()
             logger.info("Capabilities registration call successful.")
             return True
+
+    async def get_capabilities(self) -> CapabilityList:
+        url = f"{self.base_url.rstrip('/')}/system/capabilities"
+        logger.info(f"Consuming URL: {url}")
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Response received: {data}")
+            return CapabilityList(**data)
