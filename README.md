@@ -129,8 +129,9 @@ class Plugin(ABC):
         pass
         
     @property
+    @abstractmethod
     def description(self) -> str:
-        return ""
+        pass
 
     @property
     def keywords(self) -> List[str]:
@@ -287,6 +288,10 @@ class WeatherPlugin(Plugin):
     @property
     def name(self) -> str:
         return "WeatherPlugin"
+
+    @property
+    def description(self) -> str:
+        return "Responde consultas sobre el tiempo y el clima."
 
     @property
     def keywords(self) -> list[str]:

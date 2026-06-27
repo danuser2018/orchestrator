@@ -7,6 +7,10 @@ class WeatherPlugin(Plugin):
         return "WeatherPlugin"
 
     @property
+    def description(self) -> str:
+        return "Responde consultas sobre el tiempo y el clima."
+
+    @property
     def keywords(self) -> list[str]:
         return ["tiempo", "clima", "lluvia", "sol", "temperatura", "frio", "calor"]
 

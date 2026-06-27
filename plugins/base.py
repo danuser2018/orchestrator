@@ -9,8 +9,9 @@ class Plugin(ABC):
         pass
         
     @property
+    @abstractmethod
     def description(self) -> str:
-        return ""
+        pass
 
     @property
     def keywords(self) -> List[str]:

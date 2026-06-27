@@ -12,6 +12,10 @@ class FallbackPlugin(Plugin):
         return "FallbackPlugin"
 
     @property
+    def description(self) -> str:
+        return "Responde de forma predeterminada cuando no se reconoce la petición."
+
+    @property
     def keywords(self) -> list[str]:
         return []
 
