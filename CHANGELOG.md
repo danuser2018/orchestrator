@@ -82,6 +82,11 @@ Los cambios se agrupan en las siguientes categorías:
 
 ## [Sin publicar]
 
+### Cambiado
+
+- Se ha hecho obligatorio el campo `description` en el contrato de los plugins (`Plugin`).
+- Añadida la propiedad `description` a los plugins `FallbackPlugin` y `WeatherPlugin`.
+
 ---
 
 <!-- Plantilla para nuevas versiones:
