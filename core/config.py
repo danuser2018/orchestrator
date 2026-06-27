@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     port: int = 8000
     host: str = "0.0.0.0"
     log_level: str = "INFO"
+    system_service_base_url: str = "http://system-service:8000"
 
     model_config = SettingsConfigDict(env_file=".env")
 

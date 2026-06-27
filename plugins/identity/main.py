@@ -5,7 +5,7 @@ from typing import List
 
 from core.models import PluginContext, PluginResult
 from plugins.base import Plugin
-from .client import SystemServiceClient
+from core.system_service_client import SystemServiceClient
 
 logger = logging.getLogger(__name__)
 

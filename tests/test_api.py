@@ -1,5 +1,5 @@
 from unittest.mock import patch, AsyncMock
-from plugins.identity.client import SystemInfo
+from core.system_service_client import SystemInfo
 
 def test_health_check(client):
     response = client.get("api/v1/health")
@@ -71,7 +71,7 @@ def test_execute_identity(client):
         version="2.5.0",
         description="Asistente personal de voz y automatización"
     )
-    with patch("plugins.identity.client.SystemServiceClient.get_system_info", new_callable=AsyncMock) as mock_get:
+    with patch("core.system_service_client.SystemServiceClient.get_system_info", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_info
         response = client.post("/api/v1/execute", json={"text": "¿Quién eres?"})
         assert response.status_code == 200

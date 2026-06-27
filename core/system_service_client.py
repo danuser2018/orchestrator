@@ -1,7 +1,8 @@
 import httpx
 import logging
+from typing import List
 from pydantic import BaseModel
-from .config import settings
+from core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,3 +25,12 @@ class SystemServiceClient:
             data = response.json()
             logger.info(f"Response received: {data}")
             return SystemInfo(**data)
+
+    async def register_capabilities(self, capabilities: List[dict]) -> bool:
+        url = f"{self.base_url.rstrip('/')}/system/capabilities"
+        logger.info(f"Consuming URL: {url}")
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(url, json={"capabilities": capabilities})
+            response.raise_for_status()
+            logger.info("Capabilities registration call successful.")
+            return True

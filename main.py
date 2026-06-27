@@ -1,3 +1,4 @@
+import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from core.api import router as api_router
@@ -5,6 +6,7 @@ from core.plugin_manager import PluginManager
 from core.engine import Router
 from core.logger import logger
 from core.config import settings
+from core.system_service_client import SystemServiceClient
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,6 +16,38 @@ async def lifespan(app: FastAPI):
     plugin_manager.discover_and_load()
     app.state.plugin_manager = plugin_manager
     app.state.engine = Router(plugin_manager)
+    
+    # Publish capabilities to System Service
+    plugins = plugin_manager.get_active_plugins()
+    num_plugins = len(plugins)
+    
+    capabilities = []
+    for plugin in plugins:
+        name_lower = plugin.name.lower()
+        if name_lower.endswith("plugin"):
+            cap_id = name_lower[:-6]
+        else:
+            cap_id = name_lower
+            
+        capabilities.append({
+            "id": cap_id,
+            "description": plugin.description
+        })
+        
+    client = SystemServiceClient()
+    url = f"{client.base_url.rstrip('/')}/system/capabilities"
+    logger.info(f"Discovered {num_plugins} plugins. Registering {len(capabilities)} capabilities to System Service using URL: {url}")
+    
+    try:
+        await client.register_capabilities(capabilities)
+        logger.info(f"Published {len(capabilities)} capabilities to System Service.")
+    except httpx.TimeoutException as timeout_err:
+        logger.warning(f"Timeout error publishing capabilities to System Service: {timeout_err}")
+    except httpx.HTTPError as http_err:
+        logger.warning(f"HTTP error publishing capabilities to System Service: {http_err}")
+    except Exception as exc:
+        logger.error(f"Unexpected error publishing capabilities to System Service: {exc}", exc_info=True)
+        
     logger.info("Orchestrator initialized and ready.")
     
     yield
