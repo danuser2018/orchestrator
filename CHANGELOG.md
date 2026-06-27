@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## Sin publicar
+
+### Añadido
+
+- Documento `capabilities.md` donde se explica el plugin para listar capabilities disponibles.
+
 ## [1.7.0] - 2026-06-28
 
 ### Añadido
