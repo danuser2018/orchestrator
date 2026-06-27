@@ -12,6 +12,7 @@ El **Orchestrator** es el componente central de un asistente de voz personal que
 - Ejecutar el plugin seleccionado.
 - Recibir un resultado estructurado del plugin y extraer el texto que el asistente debe "pronunciar".
 - Devolver la respuesta al sistema solicitante.
+- Publicar automáticamente la lista completa de capacidades disponibles (plugins) en el servicio `system-service` durante el arranque (operación idempotente).
 
 **El Orchestrator NO HACE:**
 - Captura de audio del micrófono o reproducción de audio.
@@ -25,7 +26,7 @@ La arquitectura se divide en los siguientes componentes principales:
 
 - **API Layer**: Construida sobre FastAPI, expone los endpoints HTTP necesarios para interactuar con el Orchestrator.
 - **Router (Selection Engine)**: Motor de enrutamiento rápido que analiza la entrada de texto y calcula un "score" (puntuación) para cada plugin cargado.
-- **Plugin Manager**: Encargado de descubrir, cargar dinámicamente, registrar y mantener en memoria las instancias de los plugins disponibles.
+- **Plugin Manager**: Encargado de descubrir, cargar dinámicamente, registrar y mantener en memoria las instancias de los plugins disponibles. Tras cargar todos los plugins, se asiste el proceso de recopilación para la posterior publicación de las capacidades en `system-service`.
 - **ResponseHandler**: Transforma el resultado estructurado (`PluginResult`) que emite el plugin en la respuesta estandarizada que devolverá la API al servicio consumidor.
 - **Configuration**: Gestor centralizado para la configuración del Orchestrator y de cada plugin, usando variables de entorno o archivos `.env`.
 - **Logging**: Sistema unificado de observabilidad para trazar el flujo completo de la petición, esencial para depurar la selección de plugins y la ejecución.
@@ -249,6 +250,7 @@ Añadir una nueva capacidad es trivial y **no requiere modificar el núcleo**:
 2. Crear un archivo que contenga una clase que herede de `Plugin`.
 3. Implementar las propiedades obligatorias (`name`, `keywords`...) y el método `execute()`.
 4. Al reiniciar el Orchestrator, el `Plugin Manager` encontrará el nuevo archivo automáticamente y el router lo tendrá en cuenta en el scoring de la siguiente petición.
+5. Durante el arranque del Orchestrator, la nueva capacidad se publicará automáticamente en el `system-service` sin necesidad de modificar ningún otro componente.
 
 ## 14. Instalación
 
@@ -343,3 +345,31 @@ La arquitectura propuesta destaca por su enorme velocidad, facilidad de desplieg
 1. **Scoring Jerárquico/Entidades**: En lugar de solo Regex planas, usar una librería ligera como *spaCy* o *Snips NLU* (solo modelos locales pequeños) para extraer "intenciones" y "entidades" de forma más inteligente que el puro regex, sin la pesadez de un LLM.
 2. **Sistema de prioridades estricto**: Si un plugin choca con otro, definir en configuración quién tiene prioridad.
 3. **Paso a procesos aislados (gRPC / Subprocess)**: Si los conflictos de dependencias entre plugins se vuelven inmanejables, migrar el Plugin Manager para que lance cada plugin en su propio proceso independiente, comunicándose por sockets (ZeroMQ o IPC).
+
+## 17. Integración con System Service
+
+El Orchestrator se integra con el microservicio central `system-service` para dos propósitos principales:
+
+1. **Consulta de Identidad (`GET /system/info`)**: Consumido por el `IdentityPlugin` para conocer la información básica del sistema (nombre, versión, etc.) y presentarse de manera dinámica al usuario.
+2. **Registro Automático de Capacidades (`POST /system/capabilities`)**: Ejecutado exactamente una vez durante el arranque del Orchestrator. 
+
+### Publicación de Capacidades en el Arranque
+
+Al arrancar, el Orchestrator ejecuta los siguientes pasos:
+1. Escanea y carga todos los plugins del directorio `plugins/`.
+2. Para cada plugin registrado, construye un descriptor público simplificado que contiene:
+   - `id`: Nombre del plugin en minúsculas y sin el sufijo `"plugin"` (ej. `WeatherPlugin` -> `weather`).
+   - `description`: Breve descripción pública sobre lo que hace la habilidad.
+3. Envía la lista de capacidades mediante una petición `POST /system/capabilities` a `system-service`.
+
+### Configuración
+
+La comunicación con `system-service` se realiza utilizando la variable de entorno:
+- `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`)
+
+### Robustez y Manejo de Errores
+
+El proceso de registro de capacidades está diseñado para no interrumpir el ciclo de vida del Orchestrator. Si la llamada de registro falla (por error de red, respuesta HTTP errónea o timeout), el Orchestrator:
+- Registra una advertencia (`WARNING`) en sus logs (o `ERROR` para fallos inesperados).
+- Continúa el arranque normalmente y queda completamente operativo para atender peticiones.
+

@@ -4,7 +4,7 @@ import re
 from unittest.mock import patch, AsyncMock
 from core.models import PluginContext
 from plugins.identity.main import IdentityPlugin, build_display_name
-from plugins.identity.client import SystemInfo
+from core.system_service_client import SystemInfo
 
 @pytest.fixture
 def plugin():
