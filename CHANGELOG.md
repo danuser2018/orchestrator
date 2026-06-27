@@ -19,6 +19,22 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.7.0] - 2026-06-28
+
+### Añadido
+
+- Documento `plugin_registration.md` para implementar el registro de plugins al arranque del orchestrator.
+- Publicación automática de capacidades en el System Service durante el arranque del Orchestrator utilizando el endpoint POST /system/capabilities.
+- Nuevo cliente HTTP centralizado SystemServiceClient en core/system_service_client.py.
+- Suite de pruebas unitarias y de integración para la inicialización y el flujo de publicación de capacidades en tests/test_plugin_registration.py.
+
+### Cambiado
+
+- Se ha hecho obligatorio el campo `description` en el contrato de los plugins (`Plugin`).
+- Añadida la propiedad `description` a los plugins `FallbackPlugin` y `WeatherPlugin`.
+- Eliminado cliente local duplicado client.py y config.py de plugins/identity, migrando a la configuración y cliente compartido.
+- Actualizado README.md reflejando el nuevo flujo de inicialización e integración con el System Service.
+
 ## [1.6.0] - 2026-06-23
 
 ### Corregido
@@ -77,24 +93,6 @@ Los cambios se agrupan en las siguientes categorías:
 - Plugins integrados: `FallbackPlugin` y `WeatherPlugin`.
 - Suite completa de tests unitarios y de integración con pytest.
 - Dockerfile multiplataforma para levantar el servicio.
-
----
-
-## [Sin publicar]
-
-### Añadido
-
-- Documento `plugin_registration.md` para implementar el registro de plugins al arranque del orchestrator.
-- Publicación automática de capacidades en el System Service durante el arranque del Orchestrator utilizando el endpoint POST /system/capabilities.
-- Nuevo cliente HTTP centralizado SystemServiceClient en core/system_service_client.py.
-- Suite de pruebas unitarias y de integración para la inicialización y el flujo de publicación de capacidades en tests/test_plugin_registration.py.
-
-### Cambiado
-
-- Se ha hecho obligatorio el campo `description` en el contrato de los plugins (`Plugin`).
-- Añadida la propiedad `description` a los plugins `FallbackPlugin` y `WeatherPlugin`.
-- Eliminado cliente local duplicado client.py y config.py de plugins/identity, migrando a la configuración y cliente compartido.
-- Actualizado README.md reflejando el nuevo flujo de inicialización e integración con el System Service.
 
 ---
 
