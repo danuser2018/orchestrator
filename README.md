@@ -227,6 +227,9 @@ orchestrator/
 │   │   ├── main.py      # Clase del plugin
 │   │   ├── config.py    # Configuración específica del plugin
 │   │   └── requirements.txt # Dependencias opcionales
+│   ├── capabilities/    # Plugin de capacidades
+│   │   ├── main.py      # Clase del plugin
+│   │   └── requirements.txt # Dependencias opcionales
 │   └── filesystem/
 ├── main.py              # Punto de entrada (uvicorn)
 ├── requirements.txt     # Dependencias del núcleo (fastapi, pydantic, etc)
@@ -346,12 +349,13 @@ La arquitectura propuesta destaca por su enorme velocidad, facilidad de desplieg
 2. **Sistema de prioridades estricto**: Si un plugin choca con otro, definir en configuración quién tiene prioridad.
 3. **Paso a procesos aislados (gRPC / Subprocess)**: Si los conflictos de dependencias entre plugins se vuelven inmanejables, migrar el Plugin Manager para que lance cada plugin en su propio proceso independiente, comunicándose por sockets (ZeroMQ o IPC).
 
-## 17. Integración con System Service
+## 17. Integración con System Service y Otros Componentes
 
-El Orchestrator se integra con el microservicio central `system-service` para dos propósitos principales:
+El Orchestrator se integra con el microservicio central `system-service` y otros componentes para los siguientes propósitos principales:
 
 1. **Consulta de Identidad (`GET /system/info`)**: Consumido por el `IdentityPlugin` para conocer la información básica del sistema (nombre, versión, etc.) y presentarse de manera dinámica al usuario.
-2. **Registro Automático de Capacidades (`POST /system/capabilities`)**: Ejecutado exactamente una vez durante el arranque del Orchestrator. 
+2. **Registro Automático de Capacidades (`POST /system/capabilities`)**: Ejecutado exactamente una vez durante el arranque del Orchestrator.
+3. **Consulta de Capacidades (`GET /system/capabilities`)**: Consumido por el `CapabilitiesPlugin` para listar todas las habilidades registradas en el sistema.
 
 ### Publicación de Capacidades en el Arranque
 
@@ -362,10 +366,20 @@ Al arrancar, el Orchestrator ejecuta los siguientes pasos:
    - `description`: Breve descripción pública sobre lo que hace la habilidad.
 3. Envía la lista de capacidades mediante una petición `POST /system/capabilities` a `system-service`.
 
+### Integración con Mail Watchdog (CapabilitiesPlugin)
+
+El `CapabilitiesPlugin` permite al usuario consultar las funciones que Nova puede realizar. La lógica incluye:
+1. Consultar a `system-service` las capacidades activas con `GET /system/capabilities`.
+2. Ordenarlas alfabéticamente por su descripción.
+3. Generar un artefacto JSON compatible con el contrato de `mail-watchdog` y guardarlo en el directorio de salida (outbox) `MAIL_PENDING_DIR` (por defecto `/shared/mail/pending`).
+4. `mail-watchdog` procesa este directorio asíncronamente y envía el email al usuario.
+
 ### Configuración
 
-La comunicación con `system-service` se realiza utilizando la variable de entorno:
-- `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`)
+La comunicación y comportamiento del Orchestrator y sus plugins se configuran mediante las siguientes variables de entorno:
+- `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`): Dirección base del System Service.
+- `USER_EMAIL` (por defecto `user@example.com`): Dirección de correo del usuario destinatario para las notificaciones del `CapabilitiesPlugin`.
+- `MAIL_PENDING_DIR` (por defecto `/shared/mail/pending`): Directorio donde se escriben los correos pendientes para que los procese `mail-watchdog`.
 
 ### Robustez y Manejo de Errores
 
