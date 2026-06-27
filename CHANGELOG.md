@@ -82,6 +82,10 @@ Los cambios se agrupan en las siguientes categorías:
 
 ## [Sin publicar]
 
+### Añadido
+
+- Documento `plugin_registration.md` para implementar el registro de plugins al arranque del orchestrator.
+
 ### Cambiado
 
 - Se ha hecho obligatorio el campo `description` en el contrato de los plugins (`Plugin`).
