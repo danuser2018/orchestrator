@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
         })
         
     client = SystemServiceClient()
-    url = f"{client.base_url.rstrip('/')}/system/capabilities"
+    url = f"{client.base_url.rstrip('/')}/v1/system/capabilities"
     logger.info(f"Discovered {num_plugins} plugins. Registering {len(capabilities)} capabilities to System Service using URL: {url}")
     
     try:

@@ -24,7 +24,7 @@ class SystemServiceClient:
         self.base_url = base_url or settings.system_service_base_url
 
     async def get_system_info(self) -> SystemInfo:
-        url = f"{self.base_url.rstrip('/')}/system/info"
+        url = f"{self.base_url.rstrip('/')}/v1/system/info"
         logger.info(f"Consuming URL: {url}")
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
@@ -34,7 +34,7 @@ class SystemServiceClient:
             return SystemInfo(**data)
 
     async def register_capabilities(self, capabilities: List[dict]) -> bool:
-        url = f"{self.base_url.rstrip('/')}/system/capabilities"
+        url = f"{self.base_url.rstrip('/')}/v1/system/capabilities"
         logger.info(f"Consuming URL: {url}")
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.post(url, json={"capabilities": capabilities})
@@ -43,7 +43,7 @@ class SystemServiceClient:
             return True
 
     async def get_capabilities(self) -> CapabilityList:
-        url = f"{self.base_url.rstrip('/')}/system/capabilities"
+        url = f"{self.base_url.rstrip('/')}/v1/system/capabilities"
         logger.info(f"Consuming URL: {url}")
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
