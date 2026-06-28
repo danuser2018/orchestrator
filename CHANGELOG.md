@@ -19,9 +19,14 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## Sin publicar
+## [1.9.0] - 2026-06-28
+
+### Cambiado
+
+- Actualizado `SystemServiceClient` para consumir los endpoints versionados `/v1/system/info` y `/v1/system/capabilities` de `system-service`.
 
 ### Añadido
+
 
 - Nueva carpeta `.agent/skills` con información relevante para la IA
 
