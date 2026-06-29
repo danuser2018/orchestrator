@@ -36,6 +36,15 @@ class Router:
         context = PluginContext(raw_text=request.text, normalized_text=normalized_text)
         
         plugins = self.plugin_manager.get_active_plugins()
+        
+        # Check for exclusive regex matches first
+        for plugin in plugins:
+            if plugin.name == "FallbackPlugin":
+                continue
+            if plugin.exclusive_regex and re.search(plugin.exclusive_regex, normalized_text, re.IGNORECASE):
+                logger.info(f"Selected plugin: {plugin.name} via exclusive regex match.")
+                return plugin, context
+
         best_plugin = None
         highest_score = 0
 

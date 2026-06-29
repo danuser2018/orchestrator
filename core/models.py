@@ -6,6 +6,7 @@ class HealthResponse(BaseModel):
 
 class UserRequest(BaseModel):
     text: str
+    timestamp: Optional[float] = None
 
 class PluginContext(BaseModel):
     raw_text: str

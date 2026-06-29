@@ -15,17 +15,32 @@ def test_execute_weather(client):
     assert "grados" in data["speech"]
     assert "execution_time_ms" in data
 
+def test_execute_with_timestamp(client):
+    response = client.post("/api/v1/execute", json={
+        "text": "¿Qué tiempo hace hoy?",
+        "timestamp": 1719672000.0
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["plugin_used"] == "WeatherPlugin"
+
 def test_execute_greetings(client):
     response = client.post("/api/v1/execute", json={"text": "Hola"})
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
     assert data["plugin_used"] == "GreetingPlugin"
-    assert data["speech"]  in [
+    assert data["speech"] in [
         "Buenos días.",
+        "Buenos días, te escucho.",
+        "Hola, buenos días.",
         "Buenas tardes.",
+        "Buenas tardes, te escucho.",
+        "Hola, buenas tardes.",
         "Buenas noches.",
-        "Hola."
+        "Buenas noches, te escucho.",
+        "Hola, buenas noches."
     ]
     assert "execution_time_ms" in data
 

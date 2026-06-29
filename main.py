@@ -23,6 +23,9 @@ async def lifespan(app: FastAPI):
     
     capabilities = []
     for plugin in plugins:
+        if plugin.name == "FallbackPlugin":
+            continue
+            
         name_lower = plugin.name.lower()
         if name_lower.endswith("plugin"):
             cap_id = name_lower[:-6]

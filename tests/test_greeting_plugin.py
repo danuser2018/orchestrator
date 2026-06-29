@@ -14,9 +14,14 @@ async def test_greeting_plugin_execution(plugin):
     assert result.success is True
     assert result.speech in [
         "Buenos días.",
+        "Buenos días, te escucho.",
+        "Hola, buenos días.",
         "Buenas tardes.",
+        "Buenas tardes, te escucho.",
+        "Hola, buenas tardes.",
         "Buenas noches.",
-        "Hola."
+        "Buenas noches, te escucho.",
+        "Hola, buenas noches."
     ]
 
 def test_greeting_plugin_keywords_and_regex(plugin):

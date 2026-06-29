@@ -19,6 +19,34 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.10.0] - 2026-06-29
+
+### Añadido
+
+- Campo `timestamp` (opcional) en el modelo `UserRequest` (`core/models.py`).
+- Registro de Decisión Arquitectónica [ADR 0001](file:///home/danuser2018/workspace/orchestrator/doc/adr/0001-adicion-timestamp-userrequest.md) documentando la adición del campo y su retrocompatibilidad.
+- Prueba unitaria `test_execute_with_timestamp` en `tests/test_api.py`.
+- Propiedad `exclusive_regex` en la interfaz base `Plugin` (`plugins/base.py`).
+- Pruebas unitarias para validar la selección por coincidencia exclusiva en `tests/test_engine.py`.
+- Registro de Decisión Arquitectónica [ADR 0002](file:///home/danuser2018/workspace/orchestrator/doc/adr/adr-002-alineacion-mensajes-error-plugins.md) para estandarizar los mensajes de error genéricos devueltos por los plugins de la plataforma.
+- Registro de Decisión Arquitectónica [ADR 0003](file:///home/danuser2018/workspace/orchestrator/doc/adr/adr-003-exclusion-fallbackplugin-registro-capacidades.md) documentando la exclusión del `FallbackPlugin` del registro de capacidades dinámicas.
+
+### Cambiado
+
+- Motor de enrutamiento (`core/engine.py`) actualizado para interceptar y resolver peticiones mediante expresiones regulares exclusivas antes de iniciar el cálculo de scoring.
+- Enriquecido el plugin de saludos (`GreetingPlugin` en `plugins/greeting/main.py`) con respuestas no interactivas respetuosas con el tono de Nova-2 y sin saludos simplistas (`"Hola."`).
+- Exclusión automática del plugin de fallback (`FallbackPlugin`) en la publicación de capacidades al arrancar el servicio en `main.py`.
+- Actualizadas las aserciones de pruebas unitarias (`tests/test_greeting_plugin.py`, `tests/test_api.py`, `tests/test_plugin_registration.py`) para alinearlas con la exclusión del fallback y las respuestas enriquecidas del plugin de saludos.
+
+### Corregido
+
+- Discrepancia en el modelo `UserRequest` el cual no incluía el campo `timestamp` definido en la sección de modelos de datos del `README.md`.
+- Discrepancia técnica en la selección de plugins que omitía la funcionalidad de "Regex Exclusiva" descrita en el `README.md`.
+- Discrepancias en `README.md` (árbol de directorios desactualizado, éxito de la respuesta del plugin de fallback en el ejemplo de API REST y expresión regular de ejemplo del clima con tildes incompatible con la normalización).
+- Discrepancias en `doc/greetings.md` (presencia de saludos interactivos no permitidos por la guía de tono y mensaje de excepción no alineado con la directriz del nuevo ADR-002).
+- Discrepancias en `doc/identity.md` (estructura física recomendada obsoleta y falta de prefijo `/v1/` en los endpoints del system service).
+- Discrepancia en `doc/plugin_registration.md` (falta de prefijo `/v1/` en el endpoint de capacidades del system service).
+
 ## [1.9.0] - 2026-06-28
 
 ### Cambiado
@@ -26,7 +54,6 @@ Los cambios se agrupan en las siguientes categorías:
 - Actualizado `SystemServiceClient` para consumir los endpoints versionados `/v1/system/info` y `/v1/system/capabilities` de `system-service`.
 
 ### Añadido
-
 
 - Nueva carpeta `.agent/skills` con información relevante para la IA
 

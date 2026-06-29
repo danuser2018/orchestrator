@@ -82,13 +82,13 @@ http://system-service:8000
 Endpoint consumido:
 
 ```text
-{SYSTEM_SERVICE_BASE_URL}/system/info
+{SYSTEM_SERVICE_BASE_URL}/v1/system/info
 ```
 
 Ejemplo:
 
 ```text
-http://system-service:8000/system/info
+http://system-service:8000/v1/system/info
 ```
 
 ---
@@ -98,7 +98,7 @@ http://system-service:8000/system/info
 ## Request
 
 ```http
-GET /system/info
+GET /v1/system/info
 ```
 
 ## Response esperada
@@ -354,16 +354,16 @@ El comportamiento debe ser completamente determinista.
 
 ---
 
-# Estructura recomendada
+# Estructura física
 
 ```text
 plugins/
 └── identity/
     ├── main.py
-    ├── client.py
-    ├── config.py
     └── requirements.txt
 ```
+
+La configuración del plugin se define de manera centralizada en `core/config.py` y la comunicación HTTP asíncrona se realiza utilizando el cliente central `SystemServiceClient` ubicado en `core/system_service_client.py` (evitando así lógica HTTP duplicada o dispersa por los directorios de los plugins).
 
 ---
 
@@ -656,7 +656,7 @@ Servicio no disponible.
 La identidad se obtiene completamente desde:
 
 ```http
-GET /system/info
+GET /v1/system/info
 ```
 
 No existen datos de identidad hardcoded dentro del plugin.
@@ -670,7 +670,7 @@ Obligatorio:
 * Plugin asíncrono
 * Uso de PluginContext
 * Uso de PluginResult
-* Consumo de GET /system/info
+* Consumo de GET /v1/system/info
 * Uso de SYSTEM_SERVICE_BASE_URL
 * Construcción dinámica del display name usando únicamente el major version
 

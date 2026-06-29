@@ -177,9 +177,9 @@ Construida con FastAPI, proporciona un punto de entrada síncrono para interactu
 **Response Example (Ningún plugin coincide):**
 ```json
 {
-  "success": false,
+  "success": true,
   "plugin_used": "FallbackPlugin",
-  "speech": "Lo siento, no he entendido qué quieres hacer.",
+  "speech": "No he entendido la petición.",
   "execution_time_ms": 2
 }
 ```
@@ -224,13 +224,17 @@ orchestrator/
 │   ├── base.py          # Definición de las interfaces abstractas (Plugin, etc)
 │   ├── fallback/        # Plugin por defecto
 │   ├── weather/         # Ejemplo de plugin del tiempo
-│   │   ├── main.py      # Clase del plugin
-│   │   ├── config.py    # Configuración específica del plugin
-│   │   └── requirements.txt # Dependencias opcionales
+│   │   └── main.py      # Clase del plugin
 │   ├── capabilities/    # Plugin de capacidades
 │   │   ├── main.py      # Clase del plugin
 │   │   └── requirements.txt # Dependencias opcionales
-│   └── filesystem/
+│   ├── greeting/        # Plugin de saludo
+│   │   └── main.py      # Clase del plugin
+│   ├── farewell/        # Plugin de despedida
+│   │   └── main.py      # Clase del plugin
+│   └── identity/        # Plugin de identidad
+│       ├── main.py      # Clase del plugin
+│       └── requirements.txt # Dependencias opcionales
 ├── main.py              # Punto de entrada (uvicorn)
 ├── requirements.txt     # Dependencias del núcleo (fastapi, pydantic, etc)
 ├── Dockerfile
@@ -304,7 +308,9 @@ class WeatherPlugin(Plugin):
 
     @property
     def regex_patterns(self) -> list[str]:
-        return [r"qué.*tiempo.*hace", r"va.*a.*llover"]
+        # Nota: Los patrones regex deben definirse sin acentos/tildes, ya que el motor de routing
+        # normaliza el texto de entrada eliminando los signos diacríticos antes del scoring.
+        return [r"que.*tiempo.*hace", r"va.*a.*llover"]
 
     async def execute(self, context: PluginContext) -> PluginResult:
         # Aquí iría una llamada a OpenWeatherMap, por ejemplo

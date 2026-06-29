@@ -19,7 +19,7 @@ GET /system/info
 Tras esta implementación, el propio Orchestrator también consumirá:
 
 ```text
-POST /system/capabilities
+POST /v1/system/capabilities
 ```
 
 utilizando la misma configuración base del servicio.
@@ -105,7 +105,7 @@ SYSTEM_SERVICE_BASE_URL
 La publicación utilizará:
 
 ```text
-{SYSTEM_SERVICE_BASE_URL}/system/capabilities
+{SYSTEM_SERVICE_BASE_URL}/v1/system/capabilities
 ```
 
 ---
@@ -159,7 +159,7 @@ No deben enviarse:
 Enviar:
 
 ```http
-POST /system/capabilities
+POST /v1/system/capabilities
 ```
 
 Body:
@@ -272,7 +272,7 @@ Se descubren los plugins.
 Se realiza un único:
 
 ```http
-POST /system/capabilities
+POST /v1/system/capabilities
 ```
 
 con todas las capacidades registradas.
