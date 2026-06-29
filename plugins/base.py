@@ -21,6 +21,10 @@ class Plugin(ABC):
     def regex_patterns(self) -> List[str]:
         return []
 
+    @property
+    def exclusive_regex(self) -> str | None:
+        return None
+
     def initialize(self) -> None:
         pass
 

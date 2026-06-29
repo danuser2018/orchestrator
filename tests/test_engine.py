@@ -38,3 +38,36 @@ async def test_route_fallback_request(router):
     
     assert plugin is not None
     assert plugin.name == "FallbackPlugin"
+
+
+from plugins.base import Plugin
+from core.models import PluginContext, PluginResult
+
+class MockExclusivePlugin(Plugin):
+    @property
+    def name(self) -> str:
+        return "MockExclusivePlugin"
+    
+    @property
+    def description(self) -> str:
+        return "Mock exclusive plugin"
+        
+    @property
+    def exclusive_regex(self) -> str | None:
+        return r"secreto.*revelado"
+        
+    async def execute(self, context: PluginContext) -> PluginResult:
+        return PluginResult(success=True, speech="Secreto")
+
+@pytest.mark.asyncio
+async def test_route_exclusive_regex(router):
+    mock_plugin = MockExclusivePlugin()
+    router.plugin_manager.plugins["MockExclusivePlugin"] = mock_plugin
+    
+    # Text that matches exclusive regex
+    req = UserRequest(text="este es un secreto muy bien guardado y hoy es revelado")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "MockExclusivePlugin"
+

@@ -19,6 +19,21 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.9.1] - 2026-06-29
+
+### Añadido
+
+- Propiedad `exclusive_regex` en la interfaz base `Plugin` (`plugins/base.py`).
+- Pruebas unitarias para validar la selección por coincidencia exclusiva en `tests/test_engine.py`.
+
+### Cambiado
+
+- Motor de enrutamiento (`core/engine.py`) actualizado para interceptar y resolver peticiones mediante expresiones regulares exclusivas antes de iniciar el cálculo de scoring.
+
+### Corregido
+
+- Discrepancia técnica en la selección de plugins que omitía la funcionalidad de "Regex Exclusiva" descrita en el `README.md`.
+
 ## [1.9.0] - 2026-06-28
 
 ### Cambiado
