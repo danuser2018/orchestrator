@@ -19,10 +19,13 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## [1.9.1] - 2026-06-29
+## Sin publicar
 
 ### Añadido
 
+- Campo `timestamp` (opcional) en el modelo `UserRequest` (`core/models.py`).
+- Registro de Decisión Arquitectónica [ADR 0001](file:///home/danuser2018/workspace/orchestrator/doc/adr/0001-adicion-timestamp-userrequest.md) documentando la adición del campo y su retrocompatibilidad.
+- Prueba unitaria `test_execute_with_timestamp` en `tests/test_api.py`.
 - Propiedad `exclusive_regex` en la interfaz base `Plugin` (`plugins/base.py`).
 - Pruebas unitarias para validar la selección por coincidencia exclusiva en `tests/test_engine.py`.
 
@@ -32,6 +35,7 @@ Los cambios se agrupan en las siguientes categorías:
 
 ### Corregido
 
+- Discrepancia en el modelo `UserRequest` el cual no incluía el campo `timestamp` definido en la sección de modelos de datos del `README.md`.
 - Discrepancia técnica en la selección de plugins que omitía la funcionalidad de "Regex Exclusiva" descrita en el `README.md`.
 
 ## [1.9.0] - 2026-06-28
@@ -41,7 +45,6 @@ Los cambios se agrupan en las siguientes categorías:
 - Actualizado `SystemServiceClient` para consumir los endpoints versionados `/v1/system/info` y `/v1/system/capabilities` de `system-service`.
 
 ### Añadido
-
 
 - Nueva carpeta `.agent/skills` con información relevante para la IA
 
