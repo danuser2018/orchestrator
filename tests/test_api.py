@@ -31,11 +31,16 @@ def test_execute_greetings(client):
     data = response.json()
     assert data["success"] is True
     assert data["plugin_used"] == "GreetingPlugin"
-    assert data["speech"]  in [
+    assert data["speech"] in [
         "Buenos días.",
+        "Buenos días, te escucho.",
+        "Hola, buenos días.",
         "Buenas tardes.",
+        "Buenas tardes, te escucho.",
+        "Hola, buenas tardes.",
         "Buenas noches.",
-        "Hola."
+        "Buenas noches, te escucho.",
+        "Hola, buenas noches."
     ]
     assert "execution_time_ms" in data
 

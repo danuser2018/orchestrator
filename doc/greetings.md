@@ -187,9 +187,7 @@ La respuesta se seleccionará aleatoriamente.
 [
     "Buenos días.",
     "Buenos días, te escucho.",
-    "Hola, buenos días.",
-    "Buenos días. ¿Qué necesitas?",
-    "Hola. ¿En qué puedo ayudarte?"
+    "Hola, buenos días."
 ]
 ```
 
@@ -201,9 +199,7 @@ La respuesta se seleccionará aleatoriamente.
 [
     "Buenas tardes.",
     "Buenas tardes, te escucho.",
-    "Hola, buenas tardes.",
-    "Buenas tardes. ¿Qué necesitas?",
-    "Hola. ¿En qué puedo ayudarte?"
+    "Hola, buenas tardes."
 ]
 ```
 
@@ -215,9 +211,7 @@ La respuesta se seleccionará aleatoriamente.
 [
     "Buenas noches.",
     "Buenas noches, te escucho.",
-    "Hola, buenas noches.",
-    "Buenas noches. ¿Qué necesitas?",
-    "Hola. ¿En qué puedo ayudarte?"
+    "Hola, buenas noches."
 ]
 ```
 
@@ -415,7 +409,7 @@ Ante una excepción inesperada:
 ```python
 PluginResult(
     success=False,
-    speech="Ha ocurrido un error al procesar el saludo."
+    speech="No he podido completar la operación."
 )
 ```
 

@@ -53,19 +53,22 @@ class GreetingPlugin(Plugin):
                 logger.debug("Detected greeting period: morning")
                 responses = [
                     "Buenos días.",
-                    "Hola."
+                    "Buenos días, te escucho.",
+                    "Hola, buenos días."
                 ]
             elif 12 <= current_hour < 21:
                 logger.debug("Detected greeting period: afternoon")
                 responses = [
                     "Buenas tardes.",
-                    "Hola.",
+                    "Buenas tardes, te escucho.",
+                    "Hola, buenas tardes."
                 ]
             else:
                 logger.debug("Detected greeting period: evening")
                 responses = [
                     "Buenas noches.",
-                    "Hola.",
+                    "Buenas noches, te escucho.",
+                    "Hola, buenas noches."
                 ]
                 
             selected_response = random.choice(responses)
