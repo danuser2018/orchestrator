@@ -103,7 +103,6 @@ class CapabilitiesPlugin(Plugin):
         
         email_payload = {
             "id": mail_id,
-            "to": settings.user_email,
             "subject": "Capacidades disponibles en Nova",
             "body": body,
             "content_type": "text/plain"
@@ -136,7 +135,6 @@ class CapabilitiesPlugin(Plugin):
             data={
                 "num_capabilities": n,
                 "mail_id": mail_id,
-                "recipient": settings.user_email,
                 "file_path": str(file_path)
             }
         )

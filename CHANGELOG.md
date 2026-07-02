@@ -19,6 +19,19 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.11.0] - 2026-07-02
+
+### Eliminado
+
+- Variable de configuración `user_email` eliminada de `core/config.py`. El destinatario de correo ya no es responsabilidad del orchestrator; pasa a ser resuelto dinámicamente por `mail-watchdog` consultando a `identity-service` (ver ADR-009).
+- Campo `to` eliminado del payload JSON generado por `CapabilitiesPlugin` en `plugins/capabilities/main.py`.
+
+### Cambiado
+
+- Actualizados los tests de `tests/test_capabilities_plugin.py` para reflejar la ausencia del campo `to` en el payload y la eliminación de los mocks de `settings.user_email`.
+
+---
+
 ## [1.10.0] - 2026-06-29
 
 ### Añadido

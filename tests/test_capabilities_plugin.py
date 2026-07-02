@@ -71,7 +71,6 @@ async def test_capabilities_plugin_success(plugin, tmp_path):
         mock_get.return_value = mock_caps
 
         with patch("plugins.capabilities.main.settings") as mock_settings:
-            mock_settings.user_email = "testuser@example.com"
             mock_settings.mail_pending_dir = str(pending_dir)
 
             context = PluginContext(
@@ -94,7 +93,7 @@ async def test_capabilities_plugin_success(plugin, tmp_path):
             with open(mail_file, "r", encoding="utf-8") as f:
                 mail_data = json.load(f)
 
-            assert mail_data["to"] == "testuser@example.com"
+            assert "to" not in mail_data
             assert mail_data["subject"] == "Capacidades disponibles en Nova"
             assert mail_data["content_type"] == "text/plain"
             
@@ -179,7 +178,6 @@ async def test_capabilities_plugin_file_write_error(plugin, tmp_path):
         mock_get.return_value = mock_caps
 
         with patch("plugins.capabilities.main.settings") as mock_settings:
-            mock_settings.user_email = "testuser@example.com"
             mock_settings.mail_pending_dir = str(pending_dir)
 
             # Mock file writing to raise OSError
