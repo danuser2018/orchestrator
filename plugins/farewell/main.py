@@ -18,6 +18,29 @@ class FarewellPlugin(Plugin):
         return "Responde a mensajes de despedida del usuario."
 
     @property
+    def id(self) -> str:
+        return "farewell"
+
+    @property
+    def priority(self) -> int:
+        return 100
+
+    @property
+    def examples(self) -> List[str]:
+        return [
+            "Adiós.",
+            "Hasta luego.",
+            "Hasta pronto.",
+            "Nos vemos.",
+            "Chao.",
+            "Me voy.",
+            "Eso es todo.",
+            "Ya hemos terminado.",
+            "Gracias, hasta luego.",
+            "Puedes irte."
+        ]
+
+    @property
     def keywords(self) -> List[str]:
         return [
             "gracias",

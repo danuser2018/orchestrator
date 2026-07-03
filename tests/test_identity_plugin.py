@@ -102,3 +102,10 @@ def test_identity_plugin_keywords_and_regex(plugin):
     assert re.search(plugin.regex_patterns[1], "que eres")
     assert re.search(plugin.regex_patterns[2], "como te llamas")
     assert re.search(plugin.regex_patterns[3], "dime quien eres")
+
+def test_identity_plugin_properties(plugin):
+    assert plugin.id == "identity"
+    assert plugin.priority == 60
+    assert len(plugin.examples) == 10
+    assert "¿Quién eres?" in plugin.examples
+    assert "Dime quién eres." in plugin.examples

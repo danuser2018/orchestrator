@@ -27,6 +27,29 @@ class CapabilitiesPlugin(Plugin):
         return "Responde preguntas sobre las funciones disponibles en Nova y envía al usuario un correo con el listado completo de capacidades registradas."
 
     @property
+    def id(self) -> str:
+        return "capabilities"
+
+    @property
+    def priority(self) -> int:
+        return 60
+
+    @property
+    def examples(self) -> List[str]:
+        return [
+            "¿Qué puedes hacer?",
+            "¿En qué me puedes ayudar?",
+            "¿Qué funciones tienes?",
+            "¿Qué sabes hacer?",
+            "Muéstrame tus capacidades.",
+            "¿Qué comandos conoces?",
+            "¿Qué cosas puedo pedirte?",
+            "¿Cómo puedo usarte?",
+            "¿Qué opciones tengo?",
+            "Enséñame lo que puedes hacer."
+        ]
+
+    @property
     def keywords(self) -> List[str]:
         return [
             "hacer",

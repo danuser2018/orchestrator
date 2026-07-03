@@ -103,6 +103,26 @@ Cada plugin define un manifiesto con metadatos de coincidencia:
 4. El plugin con la puntuación más alta (que supere un umbral mínimo, ej. score > 0) "gana".
 5. En caso de empate, se puede aplicar una prioridad estática definida en el plugin, o responder con un "FallbackPlugin" que indique "No he entendido la orden".
 
+**Tabla de Prioridades de los Plugins del Sistema:**
+
+| Clase de Plugin | `id` | `priority` | `examples` |
+| :--- | :--- | :--- | :--- |
+| `GreetingPlugin` | `"greeting"` | `100` | Lista de 10 frases |
+| `FarewellPlugin` | `"farewell"` | `100` | Lista de 10 frases |
+| `WeatherPlugin` | `"weather"` | `80` | Lista de 10 frases |
+| `IdentityPlugin` | `"identity"` | `60` | Lista de 10 frases |
+| `CapabilitiesPlugin`| `"capabilities"` | `60` | Lista de 10 frases |
+| `FallbackPlugin` | `"fallback"` | `0` | `[]` |
+
+**Directrices para Desarrolladores (Asignación de Prioridades):**
+
+Al asignar prioridades a nuevos plugins, se deben seguir estas directrices:
+1. **Prioridad Muy Alta (100)**: Reservada para intenciones conversacionales inmediatas y críticas de inicio/fin (saludos, despedidas, emergencias).
+2. **Prioridad Alta (80)**: Plugins con un dominio de negocio claro y dependencias bien acotadas (clima, control de domótica).
+3. **Prioridad Media (60 - valor por defecto)**: Comportamiento conversacional estándar del asistente (información personal, capacidades, etc.).
+4. **Prioridad Baja (< 60)**: Plugins genéricos o experimentales que no deben entorpecer los flujos primarios.
+5. **Fallback (0)**: Reservada exclusivamente para el plugin por defecto en caso de no coincidencia.
+
 ## 7. Contratos
 
 Interfaces base definidas en Python utilizando Pydantic y abc:
@@ -135,6 +155,22 @@ class Plugin(ABC):
         pass
 
     @property
+    @abstractmethod
+    def id(self) -> str:
+        """Unique snake_case identifier for the plugin."""
+        pass
+
+    @property
+    def priority(self) -> int:
+        """Priority level of the plugin (0 to 100). Default is 60 (Medium)."""
+        return 60
+
+    @property
+    def examples(self) -> List[str]:
+        """Collection of natural language example phrases to trigger this plugin."""
+        return []
+
+    @property
     def keywords(self) -> List[str]:
         return []
 
@@ -143,6 +179,9 @@ class Plugin(ABC):
         return []
 
     def initialize(self) -> None:
+        pass
+
+    def teardown(self) -> None:
         pass
 
     @abstractmethod
@@ -303,6 +342,29 @@ class WeatherPlugin(Plugin):
         return "Responde consultas sobre el tiempo y el clima."
 
     @property
+    def id(self) -> str:
+        return "weather"
+
+    @property
+    def priority(self) -> int:
+        return 80
+
+    @property
+    def examples(self) -> list[str]:
+        return [
+            "¿Qué tiempo hace?",
+            "¿Qué tiempo hará mañana?",
+            "¿Va a llover hoy?",
+            "¿Qué temperatura hay?",
+            "¿Cómo está el tiempo?",
+            "Dime el pronóstico del tiempo.",
+            "¿Va a hacer calor hoy?",
+            "¿Necesito paraguas?",
+            "¿Qué clima hace?",
+            "¿Cómo estará el tiempo esta tarde?"
+        ]
+
+    @property
     def keywords(self) -> list[str]:
         return ["tiempo", "clima", "lluvia", "sol", "temperatura", "frio", "calor"]
 
@@ -368,7 +430,7 @@ El Orchestrator se integra con el microservicio central `system-service` y otros
 Al arrancar, el Orchestrator ejecuta los siguientes pasos:
 1. Escanea y carga todos los plugins del directorio `plugins/`.
 2. Para cada plugin registrado, construye un descriptor público simplificado que contiene:
-   - `id`: Nombre del plugin en minúsculas y sin el sufijo `"plugin"` (ej. `WeatherPlugin` -> `weather`).
+   - `id`: Identificador único del plugin, declarado mediante la propiedad nativa `plugin.id` (ej. `"weather"`).
    - `description`: Breve descripción pública sobre lo que hace la habilidad.
 3. Envía la lista de capacidades mediante una petición `POST /system/capabilities` a `system-service`.
 

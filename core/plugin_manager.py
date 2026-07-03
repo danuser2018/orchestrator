@@ -35,8 +35,17 @@ class PluginManager:
         for name, obj in inspect.getmembers(module, inspect.isclass):
             if issubclass(obj, Plugin) and obj is not Plugin:
                 if obj.__name__ not in self.plugins:
+                    plugin_instance = obj()
+                    
+                    # Validate priority
+                    if not (0 <= plugin_instance.priority <= 100):
+                        raise ValueError(f"Plugin priority must be between 0 and 100, got {plugin_instance.priority}")
+                        
+                    # Validate unique ID
+                    if any(p.id == plugin_instance.id for p in self.plugins.values()):
+                        raise ValueError(f"Duplicate plugin ID: {plugin_instance.id}")
+                        
                     try:
-                        plugin_instance = obj()
                         plugin_instance.initialize()
                         # Use the property `name` if defined correctly
                         self.plugins[plugin_instance.name] = plugin_instance

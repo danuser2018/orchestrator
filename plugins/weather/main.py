@@ -11,6 +11,29 @@ class WeatherPlugin(Plugin):
         return "Responde consultas sobre el tiempo y el clima."
 
     @property
+    def id(self) -> str:
+        return "weather"
+
+    @property
+    def priority(self) -> int:
+        return 80
+
+    @property
+    def examples(self) -> list[str]:
+        return [
+            "¿Qué tiempo hace?",
+            "¿Qué tiempo hará mañana?",
+            "¿Va a llover hoy?",
+            "¿Qué temperatura hay?",
+            "¿Cómo está el tiempo?",
+            "Dime el pronóstico del tiempo.",
+            "¿Va a hacer calor hoy?",
+            "¿Necesito paraguas?",
+            "¿Qué clima hace?",
+            "¿Cómo estará el tiempo esta tarde?"
+        ]
+
+    @property
     def keywords(self) -> list[str]:
         return ["tiempo", "clima", "lluvia", "sol", "temperatura", "frio", "calor"]
 

@@ -29,3 +29,10 @@ def test_greeting_plugin_keywords_and_regex(plugin):
     assert "buenos dias" in plugin.keywords
     assert r"^hola$" in plugin.regex_patterns
     assert r"^hola[.!?]?$" in plugin.regex_patterns
+
+def test_greeting_plugin_properties(plugin):
+    assert plugin.id == "greeting"
+    assert plugin.priority == 100
+    assert len(plugin.examples) == 10
+    assert "Hola." in plugin.examples
+    assert "Hola, ¿qué tal?" in plugin.examples

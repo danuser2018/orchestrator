@@ -18,6 +18,29 @@ class GreetingPlugin(Plugin):
         return "Responde a saludos del usuario."
 
     @property
+    def id(self) -> str:
+        return "greeting"
+
+    @property
+    def priority(self) -> int:
+        return 100
+
+    @property
+    def examples(self) -> List[str]:
+        return [
+            "Hola.",
+            "Buenos días.",
+            "Buenas tardes.",
+            "Buenas noches.",
+            "Hola, Nova.",
+            "Buenos días, Nova.",
+            "¿Hay alguien?",
+            "¿Estás ahí?",
+            "¿Me escuchas?",
+            "Hola, ¿qué tal?"
+        ]
+
+    @property
     def keywords(self) -> List[str]:
         return [
             "hola",
