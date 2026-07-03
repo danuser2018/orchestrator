@@ -49,29 +49,7 @@ class CapabilitiesPlugin(Plugin):
             "Enséñame lo que puedes hacer."
         ]
 
-    @property
-    def keywords(self) -> List[str]:
-        return [
-            "hacer",
-            "funciones",
-            "capacidades",
-            "puedes",
-            "sabes",
-            "ayuda"
-        ]
 
-    @property
-    def regex_patterns(self) -> List[str]:
-        return [
-            r".*qué.*puedes.*hacer.*",
-            r".*que.*puedes.*hacer.*",
-            r".*qué.*sabes.*hacer.*",
-            r".*que.*sabes.*hacer.*",
-            r".*qué.*funciones.*tienes.*",
-            r".*que.*funciones.*tienes.*",
-            r".*qué.*eres.*capaz.*de.*hacer.*",
-            r".*que.*eres.*capaz.*de.*hacer.*"
-        ]
 
     def initialize(self) -> None:
         logger.info("Initializing CapabilitiesPlugin")

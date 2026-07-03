@@ -40,28 +40,6 @@ class FarewellPlugin(Plugin):
             "Puedes irte."
         ]
 
-    @property
-    def keywords(self) -> List[str]:
-        return [
-            "gracias",
-	    "adios",
-	    "terminado",
-	    "luego"
-        ]
-
-    @property
-    def regex_patterns(self) -> List[str]:
-        return [
-	    r"\bgracias\b",
-	    r"\badios\b",
-	    r"\bhasta luego\b",
-	    r"\bhasta pronto\b",
-	    r"\bnos vemos\b",
-	    r"\bya he terminado\b",
-	    r"\bno necesito nada mas\b",
-	    r"\beso es todo\b"
-        ]
-
     async def execute(self, context: PluginContext) -> PluginResult:
         logger.debug("FarewellPlugin selected")
 

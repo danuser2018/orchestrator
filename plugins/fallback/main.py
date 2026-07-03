@@ -27,13 +27,7 @@ class FallbackPlugin(Plugin):
     def examples(self) -> list[str]:
         return []
 
-    @property
-    def keywords(self) -> list[str]:
-        return []
 
-    @property
-    def regex_patterns(self) -> list[str]:
-        return []
 
     async def execute(self, context: PluginContext) -> PluginResult:
         logger.debug("FallbackPlugin selected")

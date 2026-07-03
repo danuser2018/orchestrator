@@ -1,4 +1,3 @@
-import warnings
 from abc import ABC, abstractmethod
 from typing import List
 from core.models import PluginContext, PluginResult
@@ -30,39 +29,6 @@ class Plugin(ABC):
     def examples(self) -> List[str]:
         """Collection of natural language example phrases to trigger this plugin."""
         return []
-
-    @property
-    def keywords(self) -> List[str]:
-        """DEPRECATED: Not used by the PluginMatcher engine. Use `examples` instead."""
-        warnings.warn(
-            f"`keywords` in plugin '{self.__class__.__name__}' is deprecated and not used by the "
-            "PluginMatcher engine. Declare natural language `examples` instead (see ADR-004).",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return []
-
-    @property
-    def regex_patterns(self) -> List[str]:
-        """DEPRECATED: Not used by the PluginMatcher engine. Use `examples` instead."""
-        warnings.warn(
-            f"`regex_patterns` in plugin '{self.__class__.__name__}' is deprecated and not used by "
-            "the PluginMatcher engine. Declare natural language `examples` instead (see ADR-004).",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return []
-
-    @property
-    def exclusive_regex(self) -> str | None:
-        """DEPRECATED: Not used by the PluginMatcher engine. Use `examples` instead."""
-        warnings.warn(
-            f"`exclusive_regex` in plugin '{self.__class__.__name__}' is deprecated and not used by "
-            "the PluginMatcher engine. Declare natural language `examples` instead (see ADR-004).",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return None
 
     def initialize(self) -> None:
         pass
