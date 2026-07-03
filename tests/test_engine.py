@@ -53,6 +53,10 @@ class MockExclusivePlugin(Plugin):
         return "Mock exclusive plugin"
         
     @property
+    def id(self) -> str:
+        return "mock_exclusive"
+        
+    @property
     def exclusive_regex(self) -> str | None:
         return r"secreto.*revelado"
         

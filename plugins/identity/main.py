@@ -29,6 +29,29 @@ class IdentityPlugin(Plugin):
         return "Responde consultas sobre la identidad de Nova."
 
     @property
+    def id(self) -> str:
+        return "identity"
+
+    @property
+    def priority(self) -> int:
+        return 60
+
+    @property
+    def examples(self) -> List[str]:
+        return [
+            "¿Quién eres?",
+            "¿Cómo te llamas?",
+            "¿Qué eres?",
+            "Cuéntame quién eres.",
+            "Preséntate.",
+            "Háblame de ti.",
+            "¿Eres una inteligencia artificial?",
+            "¿Para qué sirves?",
+            "¿Cuál es tu función?",
+            "Dime quién eres."
+        ]
+
+    @property
     def keywords(self) -> List[str]:
         return [
             "quien",

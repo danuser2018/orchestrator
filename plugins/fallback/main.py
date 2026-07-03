@@ -16,6 +16,18 @@ class FallbackPlugin(Plugin):
         return "Responde de forma predeterminada cuando no se reconoce la petición."
 
     @property
+    def id(self) -> str:
+        return "fallback"
+
+    @property
+    def priority(self) -> int:
+        return 0
+
+    @property
+    def examples(self) -> list[str]:
+        return []
+
+    @property
     def keywords(self) -> list[str]:
         return []
 

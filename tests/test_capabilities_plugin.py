@@ -32,6 +32,13 @@ def test_capabilities_plugin_metadata(plugin):
     for kw in ["hacer", "funciones", "capacidades", "puedes", "sabes", "ayuda"]:
         assert kw in plugin.keywords
 
+def test_capabilities_plugin_properties(plugin):
+    assert plugin.id == "capabilities"
+    assert plugin.priority == 60
+    assert len(plugin.examples) == 10
+    assert "¿Qué puedes hacer?" in plugin.examples
+    assert "Enséñame lo que puedes hacer." in plugin.examples
+
     # Regex patterns
     test_phrases = [
         "qué puedes hacer",

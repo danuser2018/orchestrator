@@ -17,6 +17,16 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [1.12.0] - 2026-07-03
+
+### Añadido
+- Propiedades declarativas de identificador único (`id`), nivel de prioridad (`priority`) y colección de frases de ejemplo (`examples`) en el contrato de la clase base `Plugin` y todos los plugins del sistema.
+- Validaciones en `PluginManager` para garantizar que los identificadores de plugins registrados sean únicos y que el rango de prioridades sea estrictamente de 0 a 100 inclusive.
+- Tests unitarios adicionales en la suite para verificar los nuevos atributos de los plugins, validación de prioridades, detección de identificadores duplicados y filtrado de frases de ejemplo vacías o con espacios en blanco.
+
+### Cambiado
+- Simplificación del registro de capacidades al arrancar el servicio en `main.py`, eliminando el procesamiento del nombre de clase y consumiendo la propiedad nativa `plugin.id`.
+
 ---
 
 ## [1.11.0] - 2026-07-02

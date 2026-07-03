@@ -33,3 +33,10 @@ def test_farewell_plugin_keywords_and_regex(plugin):
     assert r"\bya he terminado\b" in plugin.regex_patterns
     assert r"\bno necesito nada mas\b" in plugin.regex_patterns
     assert r"\beso es todo\b" in plugin.regex_patterns
+
+def test_farewell_plugin_properties(plugin):
+    assert plugin.id == "farewell"
+    assert plugin.priority == 100
+    assert len(plugin.examples) == 10
+    assert "Adiós." in plugin.examples
+    assert "Puedes irte." in plugin.examples
