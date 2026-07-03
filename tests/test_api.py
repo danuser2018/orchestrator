@@ -60,7 +60,7 @@ def test_execute_farewell(client):
     assert "execution_time_ms" in data
 
 def test_execute_fallback(client):
-    response = client.post("/api/v1/execute", json={"text": "Algo que no entiendes"})
+    response = client.post("/api/v1/execute", json={"text": "dibuja un dinosaurio azul"})
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True

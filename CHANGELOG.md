@@ -17,7 +17,28 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [Sin publicar]
+
+---
+
+## [1.13.0] - 2026-07-03
+
+### Añadido
+- Integración de la librería `rapidfuzz` para comparación semántica de textos.
+- Nuevo motor de comparación basado en similitud semántica ponderada (`PluginMatcher`) en `core/engine.py`.
+- Nueva clase `RapidFuzzSimilarityEngine` en `core/similarity.py`.
+- Parámetros de configuración configurables (`similarity_threshold`, `tie_breaker_threshold` y pesos de RapidFuzz) con validador de consistencia en `core/config.py`.
+- Registro de decisión arquitectónica local `adr-004-motor-seleccion-plugins-similitud.md`.
+- Suite de pruebas unitarias específicas para similitud y pesos en `tests/test_similarity.py` y refactorización completa de `tests/test_engine.py` para validar la lógica del PluginMatcher.
+
+### Cambiado
+- El motor de enrutamiento `Router` ahora hereda de `PluginMatcher` y utiliza la coincidencia semántica en lugar del scoring por palabras clave y expresiones regulares.
+- El arranque en `main.py` ahora inicializa `RapidFuzzSimilarityEngine` y lo inyecta en el `Router`.
+
+---
+
 ## [1.12.0] - 2026-07-03
+
 
 ### Añadido
 - Propiedades declarativas de identificador único (`id`), nivel de prioridad (`priority`) y colección de frases de ejemplo (`examples`) en el contrato de la clase base `Plugin` y todos los plugins del sistema.
