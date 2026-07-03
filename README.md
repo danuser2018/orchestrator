@@ -8,7 +8,7 @@ El **Orchestrator** es el componente central de un asistente de voz personal que
 **El Orchestrator HACE:**
 - Recibir texto plano del usuario a través de una API REST.
 - Mantener y gestionar el ciclo de vida de un ecosistema de plugins dinámicos.
-- Seleccionar el plugin más adecuado para atender una petición usando mecanismos rápidos y deterministas (Scoring basado en Keywords y Regex).
+- Seleccionar el plugin más adecuado para atender una petición usando coincidencia por similitud semántica determinista y desempate por prioridades.
 - Ejecutar el plugin seleccionado.
 - Recibir un resultado estructurado del plugin y extraer el texto que el asistente debe "pronunciar".
 - Devolver la respuesta al sistema solicitante.
@@ -25,7 +25,7 @@ El **Orchestrator** es el componente central de un asistente de voz personal que
 La arquitectura se divide en los siguientes componentes principales:
 
 - **API Layer**: Construida sobre FastAPI, expone los endpoints HTTP necesarios para interactuar con el Orchestrator.
-- **Router (Selection Engine)**: Motor de enrutamiento rápido que analiza la entrada de texto y calcula un "score" (puntuación) para cada plugin cargado.
+- **Router (Selection Engine)**: Motor de enrutamiento rápido que analiza la entrada de texto y calcula la similitud semántica ponderada frente a las frases de ejemplo de cada plugin cargado.
 - **Plugin Manager**: Encargado de descubrir, cargar dinámicamente, registrar y mantener en memoria las instancias de los plugins disponibles. Tras cargar todos los plugins, se asiste el proceso de recopilación para la posterior publicación de las capacidades en `system-service`.
 - **ResponseHandler**: Transforma el resultado estructurado (`PluginResult`) que emite el plugin en la respuesta estandarizada que devolverá la API al servicio consumidor.
 - **Configuration**: Gestor centralizado para la configuración del Orchestrator y de cada plugin, usando variables de entorno o archivos `.env`.
@@ -81,27 +81,33 @@ El ciclo de vida de una petición sigue estos pasos:
 El sistema de plugins está diseñado para ser totalmente modular y desacoplado del núcleo.
 
 - **Descubrimiento y Carga Dinámica**: En el arranque, el `Plugin Manager` escanea el directorio `plugins/` buscando clases que hereden de la interfaz base `Plugin`. Utiliza el módulo `importlib` de Python para cargarlos de forma dinámica sin necesidad de importaciones estáticas (hardcoded) en el Orchestrator.
-- **Registro**: Al cargarse, cada plugin se instancia y se registra en la memoria del `Plugin Manager`, exponiendo sus metadatos (nombre, palabras clave, expresiones regulares).
+- **Registro**: Al cargarse, cada plugin se instancia y se registra en la memoria del `Plugin Manager`, exponiendo sus metadatos (nombre, frases de ejemplo y prioridad).
 - **Ciclo de vida**:
   1. `Initialize`: Se ejecuta una vez al arrancar (carga configuración local, inicializa clientes).
-  2. `Match/Score`: Invocado en cada petición para evaluar idoneidad.
+  2. `Match/Score`: El `PluginMatcher` calcula la similitud semántica entre el texto del usuario y las frases de ejemplo de cada plugin mediante `rapidfuzz`, aplicando desempate por prioridad.
   3. `Execute`: Invocado solo si el plugin es seleccionado.
   4. `Teardown`: Invocado al apagar el servicio para liberar recursos.
 
 ## 6. Estrategia de selección de plugins
 
-Dado que no se usan LLMs, la selección recae en un sistema de **Scoring Determinista**. 
-Cada plugin define un manifiesto con metadatos de coincidencia:
-- **Keywords**: Lista de palabras clave. Cada coincidencia suma puntos (ej. +1 punto por cada palabra encontrada).
-- **Patrones Regex**: Expresiones regulares para intenciones más complejas. Cada coincidencia suma más puntos (ej. +5 puntos por regex cumplida).
-- **Regex Exclusiva (Opcional)**: Una expresión que, si coincide, garantiza la selección de ese plugin e ignora al resto (puntuación infinita).
+La selección se realiza mediante un sistema de **Similitud Semántica Determinista** basado en algoritmos de distancia de edición (`rapidfuzz`). 
+
+Cada plugin funcional declara:
+- **Examples**: Lista de frases de ejemplo naturales que activan la habilidad.
+- **Priority**: Nivel de prioridad (0 a 100) usado para resolver empates y situaciones de ambigüedad.
 
 **Cálculo de la puntuación:**
-1. El `Router` normaliza el texto de entrada (minúsculas, eliminar acentos/signos).
-2. Itera sobre cada plugin y evalúa los Keywords y Patrones.
-3. Suma las puntuaciones.
-4. El plugin con la puntuación más alta (que supere un umbral mínimo, ej. score > 0) "gana".
-5. En caso de empate, se puede aplicar una prioridad estática definida en el plugin, o responder con un "FallbackPlugin" que indique "No he entendido la orden".
+1. El `Router` normaliza el texto de entrada y cada frase de ejemplo (minúsculas, eliminar signos diacríticos y de puntuación).
+2. Para cada plugin, calcula la similitud combinada entre el texto del usuario y cada frase de ejemplo utilizando cuatro métricas de `rapidfuzz` ponderadas:
+   - `ratio` (peso: 0.20)
+   - `partial_ratio` (peso: 0.30)
+   - `token_sort_ratio` (peso: 0.20)
+   - `token_set_ratio` (peso: 0.30)
+3. La puntuación final del plugin es la máxima obtenida entre todas sus frases de ejemplo.
+4. Si la puntuación más alta no supera el umbral mínimo configurado (`similarity_threshold`, por defecto `60.0`), se deriva al `FallbackPlugin`.
+5. Si la diferencia de puntuación entre los dos mejores candidatos es menor que un umbral (`tie_breaker_threshold`, por defecto `5.0`), se resuelve el empate mediante la prioridad:
+   - Si un plugin tiene mayor prioridad que el otro, se selecciona.
+   - Si tienen la misma prioridad, se considera un empate persistente no resoluble y se deriva al `FallbackPlugin`.
 
 **Tabla de Prioridades de los Plugins del Sistema:**
 
@@ -294,7 +300,7 @@ El sistema incorpora *structured logging* (usando librerías como `logging` est�
 Añadir una nueva capacidad es trivial y **no requiere modificar el núcleo**:
 1. Crear una carpeta nueva en `plugins/` (ej. `plugins/spotify/`).
 2. Crear un archivo que contenga una clase que herede de `Plugin`.
-3. Implementar las propiedades obligatorias (`name`, `keywords`...) y el método `execute()`.
+3. Implementar las propiedades obligatorias (`name`, `description`, `id`) y declarar las frases de ejemplo naturales en `examples` (y opcionalmente el nivel de `priority`) para que el `PluginMatcher` pueda seleccionarlo. Implementar el método `execute()`.
 4. Al reiniciar el Orchestrator, el `Plugin Manager` encontrará el nuevo archivo automáticamente y el router lo tendrá en cuenta en el scoring de la siguiente petición.
 5. Durante el arranque del Orchestrator, la nueva capacidad se publicará automáticamente en el `system-service` sin necesidad de modificar ningún otro componente.
 
@@ -395,12 +401,10 @@ class WeatherPlugin(Plugin):
 **Flujo:**
 1. Usuario dice: *"Dime qué tiempo hace, por favor."*
 2. Texto normalizado: *"dime que tiempo hace por favor"*
-3. Router evalúa `WeatherPlugin`:
-   - Match keyword: "tiempo" (+1)
-   - Match regex: `r"que.*tiempo.*hace"` (+5)
-   - Score total = 6.
-4. Gana `WeatherPlugin`, se invoca `execute()`.
-5. Se devuelve: `{"speech": "Actualmente hace 22 grados. No parece que vaya a llover."}`
+3. Router evalúa `WeatherPlugin` frente a sus frases de ejemplo (ej. *"¿Qué tiempo hace?"*).
+4. El score calculado mediante la ponderación de RapidFuzz es superior a `60.0` (por ejemplo, `78.50`).
+5. Al ser la puntuación más alta y superar el umbral, gana `WeatherPlugin` y se invoca `execute()`.
+6. Se devuelve: `{"speech": "Actualmente hace 22 grados. No parece que vaya a llover."}`
 
 ## 16. Recomendación final
 
@@ -446,8 +450,10 @@ El `CapabilitiesPlugin` permite al usuario consultar las funciones que Nova pued
 
 La comunicación y comportamiento del Orchestrator y sus plugins se configuran mediante las siguientes variables de entorno:
 - `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`): Dirección base del System Service.
-- `USER_EMAIL` (por defecto `user@example.com`): Dirección de correo del usuario destinatario para las notificaciones del `CapabilitiesPlugin`.
 - `MAIL_PENDING_DIR` (por defecto `/shared/mail/pending`): Directorio donde se escriben los correos pendientes para que los procese `mail-watchdog`.
+- `SIMILARITY_THRESHOLD` (por defecto `60.0`): Umbral mínimo de similitud requerido para activar un plugin.
+- `TIE_BREAKER_THRESHOLD` (por defecto `5.0`): Umbral de diferencia de puntuación para resolver ambigüedades.
+- `WEIGHT_RATIO` (por defecto `0.20`), `WEIGHT_PARTIAL_RATIO` (por defecto `0.30`), `WEIGHT_TOKEN_SORT_RATIO` (por defecto `0.20`), `WEIGHT_TOKEN_SET_RATIO` (por defecto `0.30`): Pesos de los algoritmos de similitud (su suma debe ser exactamente 1.0).
 
 ### Robustez y Manejo de Errores
 

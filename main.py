@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from core.api import router as api_router
 from core.plugin_manager import PluginManager
 from core.engine import Router
+from core.similarity import RapidFuzzSimilarityEngine
 from core.logger import logger
 from core.config import settings
 from core.system_service_client import SystemServiceClient
@@ -15,7 +16,10 @@ async def lifespan(app: FastAPI):
     plugin_manager = PluginManager()
     plugin_manager.discover_and_load()
     app.state.plugin_manager = plugin_manager
-    app.state.engine = Router(plugin_manager)
+    
+    similarity_engine = RapidFuzzSimilarityEngine()
+    app.state.engine = Router(plugin_manager, similarity_engine)
+
     
     # Publish capabilities to System Service
     plugins = plugin_manager.get_active_plugins()
