@@ -24,11 +24,7 @@ async def test_greeting_plugin_execution(plugin):
         "Hola, buenas noches."
     ]
 
-def test_greeting_plugin_keywords_and_regex(plugin):
-    assert "hola" in plugin.keywords
-    assert "buenos dias" in plugin.keywords
-    assert r"^hola$" in plugin.regex_patterns
-    assert r"^hola[.!?]?$" in plugin.regex_patterns
+
 
 def test_greeting_plugin_properties(plugin):
     assert plugin.id == "greeting"

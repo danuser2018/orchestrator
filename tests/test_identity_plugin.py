@@ -92,16 +92,7 @@ async def test_identity_plugin_invalid_version_format(plugin):
             assert result.success is False
             assert result.speech == "No he podido obtener la información."
 
-def test_identity_plugin_keywords_and_regex(plugin):
-    # Keywords
-    for kw in ["quien", "eres", "nova", "llamas", "identidad"]:
-        assert kw in plugin.keywords
-        
-    # Regex
-    assert re.search(plugin.regex_patterns[0], "quien eres")
-    assert re.search(plugin.regex_patterns[1], "que eres")
-    assert re.search(plugin.regex_patterns[2], "como te llamas")
-    assert re.search(plugin.regex_patterns[3], "dime quien eres")
+
 
 def test_identity_plugin_properties(plugin):
     assert plugin.id == "identity"

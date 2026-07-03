@@ -51,24 +51,7 @@ class IdentityPlugin(Plugin):
             "Dime quién eres."
         ]
 
-    @property
-    def keywords(self) -> List[str]:
-        return [
-            "quien",
-            "eres",
-            "nova",
-            "llamas",
-            "identidad"
-        ]
 
-    @property
-    def regex_patterns(self) -> List[str]:
-        return [
-            r"quien.*eres",
-            r"que.*eres",
-            r"como.*te.*llamas",
-            r"dime.*quien.*eres"
-        ]
 
     def initialize(self) -> None:
         logger.info("Initializing IdentityPlugin")

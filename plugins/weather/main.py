@@ -33,13 +33,7 @@ class WeatherPlugin(Plugin):
             "¿Cómo estará el tiempo esta tarde?"
         ]
 
-    @property
-    def keywords(self) -> list[str]:
-        return ["tiempo", "clima", "lluvia", "sol", "temperatura", "frio", "calor"]
 
-    @property
-    def regex_patterns(self) -> list[str]:
-        return [r"que.*tiempo.*hace", r"va.*a.*llover"]
 
     async def execute(self, context: PluginContext) -> PluginResult:
         # Simulación

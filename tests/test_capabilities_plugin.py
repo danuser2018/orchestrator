@@ -28,37 +28,12 @@ def test_capabilities_plugin_metadata(plugin):
         "usuario un correo con el listado completo de capacidades registradas."
     )
 
-    # Keywords
-    for kw in ["hacer", "funciones", "capacidades", "puedes", "sabes", "ayuda"]:
-        assert kw in plugin.keywords
-
 def test_capabilities_plugin_properties(plugin):
     assert plugin.id == "capabilities"
     assert plugin.priority == 60
     assert len(plugin.examples) == 10
     assert "¿Qué puedes hacer?" in plugin.examples
     assert "Enséñame lo que puedes hacer." in plugin.examples
-
-    # Regex patterns
-    test_phrases = [
-        "qué puedes hacer",
-        "que puedes hacer",
-        "qué sabes hacer",
-        "que sabes hacer",
-        "qué funciones tienes",
-        "que funciones tienes",
-        "qué eres capaz de hacer",
-        "que eres capaz de hacer",
-        "dime qué puedes hacer por mí",
-        "quiero saber qué eres capaz de hacer hoy"
-    ]
-    for phrase in test_phrases:
-        matched = False
-        for pattern in plugin.regex_patterns:
-            if re.match(pattern, phrase):
-                matched = True
-                break
-        assert matched, f"Phrase '{phrase}' should match at least one regex pattern."
 
 
 @pytest.mark.asyncio

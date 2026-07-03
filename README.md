@@ -176,14 +176,6 @@ class Plugin(ABC):
         """Collection of natural language example phrases to trigger this plugin."""
         return []
 
-    @property
-    def keywords(self) -> List[str]:
-        return []
-
-    @property
-    def regex_patterns(self) -> List[str]:
-        return []
-
     def initialize(self) -> None:
         pass
 
@@ -369,16 +361,6 @@ class WeatherPlugin(Plugin):
             "¿Qué clima hace?",
             "¿Cómo estará el tiempo esta tarde?"
         ]
-
-    @property
-    def keywords(self) -> list[str]:
-        return ["tiempo", "clima", "lluvia", "sol", "temperatura", "frio", "calor"]
-
-    @property
-    def regex_patterns(self) -> list[str]:
-        # Nota: Los patrones regex deben definirse sin acentos/tildes, ya que el motor de routing
-        # normaliza el texto de entrada eliminando los signos diacríticos antes del scoring.
-        return [r"que.*tiempo.*hace", r"va.*a.*llover"]
 
     async def execute(self, context: PluginContext) -> PluginResult:
         # Aquí iría una llamada a OpenWeatherMap, por ejemplo

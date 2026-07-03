@@ -17,7 +17,14 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
-## [Sin publicar]
+## [2.0.0] - 2026-07-03
+
+### Eliminado
+- Eliminación total de las propiedades obsoletas `keywords`, `regex_patterns` y `exclusive_regex` en la interfaz base de plugins `Plugin` y en todos los plugins del sistema (`GreetingPlugin`, `FarewellPlugin`, `WeatherPlugin`, `CapabilitiesPlugin`, `IdentityPlugin`, `FallbackPlugin`), consolidando definitivamente el enrutamiento por similitud semántica y prioridad.
+- Eliminación de la importación y emisión de advertencias de tipo `DeprecationWarning` asociadas a estas propiedades obsoletas.
+
+### ⚠️ Cambios disruptivos (Breaking Changes)
+- **Incompatibilidad con plugins externos que declaren propiedades legadas**: Cualquier plugin de terceros que definiera las propiedades `keywords`, `regex_patterns` o `exclusive_regex` debe migrar a declarar sus intenciones exclusivamente mediante la propiedad `examples`. Las propiedades legadas ya no están definidas en la clase base `Plugin` y no tendrán ningún efecto en el motor de selección `PluginMatcher`.
 
 ---
 

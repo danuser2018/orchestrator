@@ -14,7 +14,6 @@ def test_plugin_manager_loads_plugins():
     assert weather_plugin.id == "weather"
     assert weather_plugin.priority == 80
     assert len(weather_plugin.examples) == 10
-    assert "tiempo" in weather_plugin.keywords
 
 def test_plugin_manager_fallback_plugin():
     manager = PluginManager(plugins_dir="plugins")
@@ -100,3 +99,16 @@ def test_plugin_examples_filtering():
         
     plugin_instance = ExampleFilterPlugin()
     assert plugin_instance.examples == ["Valid phrase", "Another valid phrase"]
+
+def test_plugin_legacy_properties_removed():
+    from plugins.weather.main import WeatherPlugin
+    plugin = WeatherPlugin()
+    
+    with pytest.raises(AttributeError):
+        _ = plugin.keywords
+        
+    with pytest.raises(AttributeError):
+        _ = plugin.regex_patterns
+        
+    with pytest.raises(AttributeError):
+        _ = plugin.exclusive_regex

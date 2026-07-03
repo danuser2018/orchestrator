@@ -40,31 +40,7 @@ class GreetingPlugin(Plugin):
             "Hola, ¿qué tal?"
         ]
 
-    @property
-    def keywords(self) -> List[str]:
-        return [
-            "hola",
-            "buenos dias",
-            "buenas tardes",
-            "buenas noches",
-            "saludos",
-            "hey",
-            "ey",
-            "buenas"
-        ]
 
-    @property
-    def regex_patterns(self) -> List[str]:
-        return [
-            r"^hola$",
-            r"^hola[.!?]?$",
-            r"^buenos dias[.!?]?$",
-            r"^buenas tardes[.!?]?$",
-            r"^buenas noches[.!?]?$",
-            r"^saludos[.!?]?$",
-            r"^hey[.!?]?$",
-            r"^ey[.!?]?$"
-        ]
 
     async def execute(self, context: PluginContext) -> PluginResult:
         logger.debug("GreetingPlugin selected")
