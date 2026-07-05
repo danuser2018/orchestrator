@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     system_service_base_url: str = "http://system-service:8000"
     mail_pending_dir: str = "/shared/mail/pending"
+    weather_service_base_url: str = "http://weather-service:8000"
 
     # Similarity engine parameters
     similarity_threshold: float = 60.0

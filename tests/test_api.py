@@ -6,24 +6,32 @@ def test_health_check(client):
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
+from core.weather_service_client import WeatherInfo
+
 def test_execute_weather(client):
-    response = client.post("/api/v1/execute", json={"text": "¿Qué tiempo hace hoy?"})
-    assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
-    assert data["plugin_used"] == "WeatherPlugin"
-    assert "grados" in data["speech"]
-    assert "execution_time_ms" in data
+    mock_weather = WeatherInfo(temperature=22.0, precipitation_probability=10)
+    with patch("core.weather_service_client.WeatherServiceClient.get_current_weather", new_callable=AsyncMock) as mock_get:
+        mock_get.return_value = mock_weather
+        response = client.post("/api/v1/execute", json={"text": "¿Qué tiempo hace hoy?"})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["plugin_used"] == "WeatherPlugin"
+        assert "grados" in data["speech"]
+        assert "execution_time_ms" in data
 
 def test_execute_with_timestamp(client):
-    response = client.post("/api/v1/execute", json={
-        "text": "¿Qué tiempo hace hoy?",
-        "timestamp": 1719672000.0
-    })
-    assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
-    assert data["plugin_used"] == "WeatherPlugin"
+    mock_weather = WeatherInfo(temperature=22.0, precipitation_probability=10)
+    with patch("core.weather_service_client.WeatherServiceClient.get_current_weather", new_callable=AsyncMock) as mock_get:
+        mock_get.return_value = mock_weather
+        response = client.post("/api/v1/execute", json={
+            "text": "¿Qué tiempo hace hoy?",
+            "timestamp": 1719672000.0
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["plugin_used"] == "WeatherPlugin"
 
 def test_execute_greetings(client):
     response = client.post("/api/v1/execute", json={"text": "Hola"})

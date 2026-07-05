@@ -17,6 +17,20 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [2.1.0]
+
+### Añadido
+- Cliente de servicio meteorológico asíncrono (`core/weather_service_client.py`) para consumir datos meteorológicos reales en lugar de simulados.
+- Suite de pruebas unitarias (`tests/test_weather_plugin.py`) para validar el comportamiento del plugin meteorológico con mocks de red.
+
+### Cambiado
+- Modificado `plugins/weather/main.py` para consumir `weather-service` y formatear el resultado de acuerdo con las especificaciones de negocio (redondeo de temperatura, mapeo de lluvia) y las pautas de tono de `TONE_GUIDE.md` y gestión de errores de `ADR-002`.
+- Agregada la variable de configuración `weather_service_base_url` a la clase `Settings` en `core/config.py`.
+- Actualizado `README.md` con el código real de producción de `WeatherPlugin`.
+- Actualizados los tests de API en `tests/test_api.py` para mockear `WeatherServiceClient` y evitar llamadas a red.
+
+---
+
 ## [2.0.0] - 2026-07-03
 
 ### Eliminado
