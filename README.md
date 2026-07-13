@@ -115,6 +115,8 @@ Cada plugin funcional declara:
 | :--- | :--- | :--- | :--- |
 | `GreetingPlugin` | `"greeting"` | `100` | Lista de 10 frases |
 | `FarewellPlugin` | `"farewell"` | `100` | Lista de 10 frases |
+| `TimePlugin` | `"time"` | `80` | Lista de 10 frases |
+| `DatePlugin` | `"date"` | `80` | Lista de 10 frases |
 | `WeatherPlugin` | `"weather"` | `80` | Lista de 10 frases |
 | `IdentityPlugin` | `"identity"` | `60` | Lista de 10 frases |
 | `AuthorPlugin` | `"author"` | `60` | Lista de 10 frases |
@@ -254,27 +256,34 @@ Definición de entidades (Modelos Pydantic):
 ```text
 orchestrator/
 ├── core/
-│   ├── api.py           # Endpoints FastAPI
-│   ├── config.py        # Configuración global
-│   ├── engine.py        # Motor de Routing y Scoring
-│   ├── logger.py        # Configuración de logs
-│   ├── models.py        # Definición de Pydantic models (UserRequest, etc)
-│   └── plugin_manager.py # Lógica de descubrimiento de plugins
+│   ├── api.py                # Endpoints FastAPI
+│   ├── config.py             # Configuración global
+│   ├── datetime_service.py   # Utilidad de fecha/hora del sistema (helper)
+│   ├── engine.py             # Motor de Routing y Scoring
+│   ├── logger.py             # Configuración de logs
+│   ├── models.py             # Definición de Pydantic models (UserRequest, etc)
+│   ├── plugin_manager.py     # Lógica de descubrimiento de plugins
+│   ├── similarity.py         # Motor de similitud semántica (RapidFuzz)
+│   ├── system_service_client.py # Cliente HTTP para system-service
+│   └── weather_service_client.py # Cliente HTTP para weather-service
 ├── plugins/
 │   ├── base.py          # Definición de las interfaces abstractas (Plugin, etc)
-│   ├── fallback/        # Plugin por defecto
-│   ├── weather/         # Ejemplo de plugin del tiempo
-│   │   └── main.py      # Clase del plugin
 │   ├── capabilities/    # Plugin de capacidades
 │   │   ├── main.py      # Clase del plugin
 │   │   └── requirements.txt # Dependencias opcionales
-│   ├── greeting/        # Plugin de saludo
+│   ├── datetime/        # Plugins de fecha y hora
+│   │   └── main.py      # Clases TimePlugin y DatePlugin
+│   ├── fallback/        # Plugin por defecto
 │   │   └── main.py      # Clase del plugin
 │   ├── farewell/        # Plugin de despedida
 │   │   └── main.py      # Clase del plugin
-│   └── identity/        # Plugin de identidad
-│       ├── main.py      # Clase del plugin
-│       └── requirements.txt # Dependencias opcionales
+│   ├── greeting/        # Plugin de saludo
+│   │   └── main.py      # Clase del plugin
+│   ├── identity/        # Plugins de identidad, autoría y versión
+│   │   ├── main.py      # Clases IdentityPlugin, AuthorPlugin, VersionPlugin, HelpPlugin
+│   │   └── requirements.txt # Dependencias opcionales
+│   └── weather/         # Plugin del tiempo
+│       └── main.py      # Clase del plugin
 ├── main.py              # Punto de entrada (uvicorn)
 ├── requirements.txt     # Dependencias del núcleo (fastapi, pydantic, etc)
 ├── Dockerfile

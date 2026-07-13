@@ -17,6 +17,14 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [2.3.0] - 2026-07-13
+
+### Añadido
+- Dos nuevos plugins públicos de información del sistema en el orquestador: `TimePlugin` (`time`) para la hora actual en formato de 24 horas y `DatePlugin` (`date`) para la fecha actual en formato extendido, con prioridad 80 y usando la utilidad centralizada `DateTimeService`.
+- Pruebas unitarias completas para `DateTimeService` y los nuevos plugins `TimePlugin` y `DatePlugin` en `tests/test_datetime_plugin.py`, además de integrar su enrutamiento y registro en `tests/test_routing.py` y `tests/test_plugin_registration.py`.
+
+---
+
 ## [2.2.0] - 2026-07-13
 
 ### Añadido
