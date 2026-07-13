@@ -34,3 +34,35 @@ async def test_route_help_plugin(router):
     
     assert plugin is not None
     assert plugin.name == "HelpPlugin"
+
+@pytest.mark.asyncio
+async def test_route_time_plugin(router):
+    req = UserRequest(text="¿Qué hora marca el reloj?")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "TimePlugin"
+
+@pytest.mark.asyncio
+async def test_route_date_plugin_mes(router):
+    req = UserRequest(text="¿En qué mes estamos?")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "DatePlugin"
+
+@pytest.mark.asyncio
+async def test_route_date_plugin_ano(router):
+    req = UserRequest(text="¿En qué año estamos?")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "DatePlugin"
+
+@pytest.mark.asyncio
+async def test_route_date_plugin_fecha(router):
+    req = UserRequest(text="Fecha actual.")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "DatePlugin"
