@@ -12,13 +12,16 @@ def test_successful_plugin_registration(client):
     args, kwargs = client.mock_register_capabilities.call_args
     registered = args[0]
     
-    # Deberíamos tener cargados los plugins: identity, weather, farewell, greeting (fallback se excluye)
+    # Deberíamos tener cargados los plugins: identity, weather, farewell, greeting, author, version, help (fallback se excluye)
     ids = [cap["id"] for cap in registered]
     assert "identity" in ids
     assert "weather" in ids
     assert "fallback" not in ids
     assert "farewell" in ids
     assert "greeting" in ids
+    assert "author" in ids
+    assert "version" in ids
+    assert "help" in ids
     
     # Verificar que los campos sean strings no vacíos
     for cap in registered:

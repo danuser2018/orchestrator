@@ -17,7 +17,17 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
-## [2.1.0]
+## [2.2.0] - 2026-07-13
+
+### Añadido
+- Tres nuevos plugins públicos de identidad: `AuthorPlugin` (`author`), `VersionPlugin` (`version`) y `HelpPlugin` (`help`), integrados con el motor de similitud RapidFuzz y con gestión homogénea de errores según `ADR-002`.
+- Suite de pruebas unitarias en `tests/test_identity_plugin.py` cubriendo casos de éxito, errores de red/HTTP y excepciones inesperadas.
+- Pruebas de registro de capacidades en `tests/test_plugin_registration.py` para asegurar que los nuevos plugins publican sus capacidades en `system-service` durante el arranque.
+- Pruebas de enrutamiento en `tests/test_routing.py` para validar la correcta selección de los plugins por similitud semántica.
+
+---
+
+## [2.1.0] - 2026-07-05
 
 ### Añadido
 - Cliente de servicio meteorológico asíncrono (`core/weather_service_client.py`) para consumir datos meteorológicos reales en lugar de simulados.

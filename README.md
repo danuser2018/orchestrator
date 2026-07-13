@@ -117,6 +117,9 @@ Cada plugin funcional declara:
 | `FarewellPlugin` | `"farewell"` | `100` | Lista de 10 frases |
 | `WeatherPlugin` | `"weather"` | `80` | Lista de 10 frases |
 | `IdentityPlugin` | `"identity"` | `60` | Lista de 10 frases |
+| `AuthorPlugin` | `"author"` | `60` | Lista de 10 frases |
+| `VersionPlugin` | `"version"` | `60` | Lista de 10 frases |
+| `HelpPlugin` | `"help"` | `60` | Lista de 10 frases |
 | `CapabilitiesPlugin`| `"capabilities"` | `60` | Lista de 10 frases |
 | `FallbackPlugin` | `"fallback"` | `0` | `[]` |
 
@@ -459,7 +462,7 @@ La arquitectura propuesta destaca por su enorme velocidad, facilidad de desplieg
 
 El Orchestrator se integra con el microservicio central `system-service` y otros componentes para los siguientes propósitos principales:
 
-1. **Consulta de Identidad (`GET /system/info`)**: Consumido por el `IdentityPlugin` para conocer la información básica del sistema (nombre, versión, etc.) y presentarse de manera dinámica al usuario.
+1. **Consulta de Identidad (`GET /system/info`)**: Consumido por `IdentityPlugin`, `AuthorPlugin` y `VersionPlugin` para conocer la información básica del sistema (nombre, versión, autor, etc.) y responder preguntas de identidad, autoría y versión de forma dinámica al usuario.
 2. **Registro Automático de Capacidades (`POST /system/capabilities`)**: Ejecutado exactamente una vez durante el arranque del Orchestrator.
 3. **Consulta de Capacidades (`GET /system/capabilities`)**: Consumido por el `CapabilitiesPlugin` para listar todas las habilidades registradas en el sistema.
 
