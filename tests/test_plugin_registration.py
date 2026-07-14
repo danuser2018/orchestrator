@@ -24,6 +24,9 @@ def test_successful_plugin_registration(client):
     assert "help" in ids
     assert "time" in ids
     assert "date" in ids
+    assert "coin" in ids
+    assert "dice" in ids
+    assert "random-number" in ids
     
     # Verificar que los campos sean strings no vacíos
     for cap in registered:

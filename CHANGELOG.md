@@ -17,6 +17,15 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [2.4.0] - 2026-07-14
+
+### Añadido
+- Tres nuevos plugins públicos de generación aleatoria: `CoinPlugin` (`coin`), `DicePlugin` (`dice`) y `RandomNumberPlugin` (`random-number`), con prioridad 60 y haciendo uso de la utilidad centralizada `RandomService`.
+- Nueva clase de utilidad centralizada `RandomService` (`core/random_service.py`) para encapsular la generación pseudoaleatoria de Python.
+- Suite de pruebas unitarias para `RandomService` y los nuevos plugins en `tests/test_random_plugin.py`.
+- Integración de los nuevos plugins en las pruebas de enrutamiento (`tests/test_routing.py`) y de registro de capacidades (`tests/test_plugin_registration.py`).
+- Actualización de `README.md` para incluir los tres nuevos plugins en la tabla de prioridades y en el árbol de estructura de directorios.
+
 ## [2.3.0] - 2026-07-13
 
 ### Añadido

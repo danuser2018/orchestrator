@@ -66,3 +66,35 @@ async def test_route_date_plugin_fecha(router):
     
     assert plugin is not None
     assert plugin.name == "DatePlugin"
+
+@pytest.mark.asyncio
+async def test_route_coin_plugin(router):
+    req = UserRequest(text="Lanza una moneda al aire.")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "CoinPlugin"
+
+@pytest.mark.asyncio
+async def test_route_dice_plugin(router):
+    req = UserRequest(text="Tira los dados.")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "DicePlugin"
+
+@pytest.mark.asyncio
+async def test_route_random_number_plugin_1(router):
+    req = UserRequest(text="Dame un número aleatorio.")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "RandomNumberPlugin"
+
+@pytest.mark.asyncio
+async def test_route_random_number_plugin_2(router):
+    req = UserRequest(text="Número al azar.")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "RandomNumberPlugin"
