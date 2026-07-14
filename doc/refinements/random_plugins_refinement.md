@@ -384,7 +384,7 @@ Se creará un conjunto de pruebas dedicado a validar el funcionamiento lógico y
      - `roll_dice` retorna `5` -> speech `"Ha salido un 5."`, `data["result"]` = `5`.
      - `random_int` retorna `37` -> speech `"37."`, `data["result"]` = `37`.
 3. **Pruebas de fallo e integridad**:
-   - Forzar excepciones en `RandomService` y asertar que los plugins capturan la excepción y devuelven `success=False` con el speech `"No he podido obtener la información."`.
+   - Forzar excepciones en `RandomService` y asertar que los plugins capturan la excepción y devuelven `success=False` con el speech `"No he podido completar la operación."`.
    - Validar las prioridades (`60`), IDs (`coin`, `dice`, `random-number`) e inicializaciones de los tres plugins.
 
 ### Pruebas de Registro (`tests/test_plugin_registration.py`)

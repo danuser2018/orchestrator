@@ -123,6 +123,9 @@ Cada plugin funcional declara:
 | `VersionPlugin` | `"version"` | `60` | Lista de 10 frases |
 | `HelpPlugin` | `"help"` | `60` | Lista de 10 frases |
 | `CapabilitiesPlugin`| `"capabilities"` | `60` | Lista de 10 frases |
+| `CoinPlugin` | `"coin"` | `60` | Lista de 10 frases |
+| `DicePlugin` | `"dice"` | `60` | Lista de 10 frases |
+| `RandomNumberPlugin`| `"random-number"` | `60` | Lista de 10 frases |
 | `FallbackPlugin` | `"fallback"` | `0` | `[]` |
 
 **Directrices para Desarrolladores (Asignación de Prioridades):**
@@ -263,6 +266,7 @@ orchestrator/
 │   ├── logger.py             # Configuración de logs
 │   ├── models.py             # Definición de Pydantic models (UserRequest, etc)
 │   ├── plugin_manager.py     # Lógica de descubrimiento de plugins
+│   ├── random_service.py     # Utilidad de generación aleatoria (helper)
 │   ├── similarity.py         # Motor de similitud semántica (RapidFuzz)
 │   ├── system_service_client.py # Cliente HTTP para system-service
 │   └── weather_service_client.py # Cliente HTTP para weather-service
@@ -282,6 +286,8 @@ orchestrator/
 │   ├── identity/        # Plugins de identidad, autoría y versión
 │   │   ├── main.py      # Clases IdentityPlugin, AuthorPlugin, VersionPlugin, HelpPlugin
 │   │   └── requirements.txt # Dependencias opcionales
+│   ├── random/          # Plugins aleatorios (moneda, dado, número)
+│   │   └── main.py      # Clases CoinPlugin, DicePlugin, RandomNumberPlugin
 │   └── weather/         # Plugin del tiempo
 │       └── main.py      # Clase del plugin
 ├── main.py              # Punto de entrada (uvicorn)
