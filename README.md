@@ -126,6 +126,11 @@ Cada plugin funcional declara:
 | `CoinPlugin` | `"coin"` | `60` | Lista de 10 frases |
 | `DicePlugin` | `"dice"` | `60` | Lista de 10 frases |
 | `RandomNumberPlugin`| `"random-number"` | `60` | Lista de 10 frases |
+| `VolumeUpPlugin` | `"volume-up"` | `60` | Lista de 10 frases |
+| `VolumeDownPlugin` | `"volume-down"` | `60` | Lista de 10 frases |
+| `VolumeStatusPlugin`| `"volume-status"` | `60` | Lista de 10 frases |
+| `MutePlugin` | `"mute"` | `60` | Lista de 10 frases |
+| `UnmutePlugin` | `"unmute"` | `60` | Lista de 10 frases |
 | `FallbackPlugin` | `"fallback"` | `0` | `[]` |
 
 **Directrices para Desarrolladores (Asignación de Prioridades):**
@@ -269,7 +274,8 @@ orchestrator/
 │   ├── random_service.py     # Utilidad de generación aleatoria (helper)
 │   ├── similarity.py         # Motor de similitud semántica (RapidFuzz)
 │   ├── system_service_client.py # Cliente HTTP para system-service
-│   └── weather_service_client.py # Cliente HTTP para weather-service
+│   ├── weather_service_client.py # Cliente HTTP para weather-service
+│   └── host_service_client.py # Cliente HTTP para host-service
 ├── plugins/
 │   ├── base.py          # Definición de las interfaces abstractas (Plugin, etc)
 │   ├── capabilities/    # Plugin de capacidades
@@ -288,6 +294,8 @@ orchestrator/
 │   │   └── requirements.txt # Dependencias opcionales
 │   ├── random/          # Plugins aleatorios (moneda, dado, número)
 │   │   └── main.py      # Clases CoinPlugin, DicePlugin, RandomNumberPlugin
+│   ├── volume/          # Plugins de volumen (subir, bajar, estado, silenciar, activar sonido)
+│   │   └── main.py      # Clases VolumeUpPlugin, VolumeDownPlugin, VolumeStatusPlugin, MutePlugin, UnmutePlugin
 │   └── weather/         # Plugin del tiempo
 │       └── main.py      # Clase del plugin
 ├── main.py              # Punto de entrada (uvicorn)
@@ -502,6 +510,7 @@ El `CapabilitiesPlugin` permite al usuario consultar las funciones que Nova pued
 
 La comunicación y comportamiento del Orchestrator y sus plugins se configuran mediante las siguientes variables de entorno:
 - `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`): Dirección base del System Service.
+- `HOST_SERVICE_BASE_URL` (por defecto `http://host.docker.internal:8007`): Dirección base del Host Service (capa HAL).
 - `MAIL_PENDING_DIR` (por defecto `/shared/mail/pending`): Directorio donde se escriben los correos pendientes para que los procese `mail-watchdog`.
 - `SIMILARITY_THRESHOLD` (por defecto `60.0`): Umbral mínimo de similitud requerido para activar un plugin.
 - `TIE_BREAKER_THRESHOLD` (por defecto `5.0`): Umbral de diferencia de puntuación para resolver ambigüedades.
