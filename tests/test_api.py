@@ -102,3 +102,98 @@ def test_execute_identity(client):
         assert data["success"] is True
         assert data["plugin_used"] == "IdentityPlugin"
         assert data["speech"] == "Soy Nova-2, tu sistema local de automatización."
+
+def test_resolve_intent_success(client):
+    response = client.post("/api/v1/resolve", json={"text": "¿Qué tiempo hace hoy?"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "steps" in data
+    assert len(data["steps"]) == 1
+    step = data["steps"][0]
+    assert step["plugin"] == "WeatherPlugin"
+    assert step["context"]["raw_text"] == "¿Qué tiempo hace hoy?"
+
+def test_resolve_intent_empty_text(client):
+    response = client.post("/api/v1/resolve", json={"text": "   "})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["steps"]) == 1
+    assert data["steps"][0]["plugin"] == "FallbackPlugin"
+
+def test_resolve_validation_error(client):
+    response = client.post("/api/v1/resolve", json={})
+    assert response.status_code == 422
+    data = response.json()
+    assert data["error"] == "ValidationError"
+    assert "obligatorio" in data["message"]
+    assert data["status"] == 422
+
+def test_execute_plan_success(client):
+    plan_payload = {
+        "steps": [
+            {
+                "plugin": "GreetingPlugin",
+                "confidence": 95.0,
+                "parameters": {},
+                "channel": "voice",
+                "context": {
+                    "raw_text": "Hola",
+                    "normalized_text": "hola",
+                    "metadata": {}
+                },
+                "security": {}
+            }
+        ]
+    }
+    response = client.post("/api/v1/execute-plan", json=plan_payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["plugin_used"] == "GreetingPlugin"
+    assert "execution_time_ms" in data
+
+def test_execute_plan_plugin_not_found(client):
+    plan_payload = {
+        "steps": [
+            {
+                "plugin": "UnknownPlugin",
+                "confidence": 95.0,
+                "parameters": {},
+                "channel": "voice",
+                "context": {
+                    "raw_text": "Hola",
+                    "normalized_text": "hola",
+                    "metadata": {}
+                },
+                "security": {}
+            }
+        ]
+    }
+    response = client.post("/api/v1/execute-plan", json=plan_payload)
+    assert response.status_code == 400
+    data = response.json()
+    assert data["error"] == "PluginNotFoundError"
+    assert "UnknownPlugin" in data["message"]
+    assert data["status"] == 400
+
+def test_execute_propagates_plugin_not_found_error(client):
+    """Verifica que /execute re-lanza PluginNotFoundError con HTTP 400 (D-02 fix)."""
+    from unittest.mock import patch, AsyncMock
+    from core.models import ExecutionPlan, ExecutionPlanStep, PluginContext
+
+    fake_plan = ExecutionPlan(
+        steps=[
+            ExecutionPlanStep(
+                plugin="GhostPlugin",
+                context=PluginContext(raw_text="test", normalized_text="test")
+            )
+        ]
+    )
+    with patch("core.engine.IntentResolver.resolve", new_callable=AsyncMock) as mock_resolve:
+        mock_resolve.return_value = fake_plan
+        response = client.post("/api/v1/execute", json={"text": "test"})
+        assert response.status_code == 400
+        data = response.json()
+        assert data["error"] == "PluginNotFoundError"
+        assert "GhostPlugin" in data["message"]
+        assert data["status"] == 400

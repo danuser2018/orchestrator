@@ -1,9 +1,11 @@
 import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from core.api import router as api_router
 from core.plugin_manager import PluginManager
-from core.engine import Router
+from core.engine import IntentResolver, PluginExecutor, PluginNotFoundError
 from core.similarity import RapidFuzzSimilarityEngine
 from core.logger import logger
 from core.config import settings
@@ -18,7 +20,8 @@ async def lifespan(app: FastAPI):
     app.state.plugin_manager = plugin_manager
     
     similarity_engine = RapidFuzzSimilarityEngine()
-    app.state.engine = Router(plugin_manager, similarity_engine)
+    app.state.resolver = IntentResolver(plugin_manager, similarity_engine)
+    app.state.executor = PluginExecutor(plugin_manager)
 
     
     # Publish capabilities to System Service
@@ -63,6 +66,30 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    errors = exc.errors()
+    message = "El campo 'text' es obligatorio y no puede estar vacío." if any(err.get("loc") == ("body", "text") for err in errors) else str(exc)
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": "ValidationError",
+            "message": message,
+            "status": 422
+        }
+    )
+
+@app.exception_handler(PluginNotFoundError)
+async def plugin_not_found_exception_handler(request, exc: PluginNotFoundError):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "PluginNotFoundError",
+            "message": str(exc),
+            "status": 400
+        }
+    )
 
 app.include_router(api_router, prefix="/api/v1")
 
