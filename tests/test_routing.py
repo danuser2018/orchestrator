@@ -98,3 +98,43 @@ async def test_route_random_number_plugin_2(router):
     
     assert plugin is not None
     assert plugin.name == "RandomNumberPlugin"
+
+@pytest.mark.asyncio
+async def test_route_volume_up_plugin(router):
+    req = UserRequest(text="Sube un poco el volumen")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "VolumeUpPlugin"
+
+@pytest.mark.asyncio
+async def test_route_volume_down_plugin(router):
+    req = UserRequest(text="Ponlo más bajo")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "VolumeDownPlugin"
+
+@pytest.mark.asyncio
+async def test_route_volume_status_plugin(router):
+    req = UserRequest(text="¿Qué volumen tengo?")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "VolumeStatusPlugin"
+
+@pytest.mark.asyncio
+async def test_route_mute_plugin(router):
+    req = UserRequest(text="Silénciate")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "MutePlugin"
+
+@pytest.mark.asyncio
+async def test_route_unmute_plugin(router):
+    req = UserRequest(text="Activa el sonido")
+    plugin, context = await router.route_request(req)
+    
+    assert plugin is not None
+    assert plugin.name == "UnmutePlugin"

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     system_service_base_url: str = "http://system-service:8000"
     mail_pending_dir: str = "/shared/mail/pending"
     weather_service_base_url: str = "http://weather-service:8000"
+    host_service_base_url: str = "http://host.docker.internal:8007"
 
     # Similarity engine parameters
     similarity_threshold: float = 60.0

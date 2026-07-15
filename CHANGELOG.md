@@ -17,6 +17,15 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [2.5.0] - 2026-07-15
+
+### Añadido
+- Cinco nuevos plugins públicos de control de volumen: `VolumeUpPlugin` (`volume-up`), `VolumeDownPlugin` (`volume-down`), `VolumeStatusPlugin` (`volume-status`), `MutePlugin` (`mute`) y `UnmutePlugin` (`unmute`), con prioridad 60 y haciendo uso de la API REST del microservicio `host-service`.
+- Nuevo cliente de servicio host asíncrono (`core/host_service_client.py`) para interactuar con la Capa de Abstracción de Host (HAL) y recuperar/modificar el estado de audio.
+- Variable de configuración `host_service_base_url` agregada a la clase `Settings` en `core/config.py`.
+- Suite de pruebas unitarias para `HostServiceClient` y los nuevos plugins en `tests/test_volume_plugin.py`.
+- Integración de los nuevos plugins en las pruebas de enrutamiento (`tests/test_routing.py`) y de registro de capacidades (`tests/test_plugin_registration.py`).
+
 ## [2.4.0] - 2026-07-14
 
 ### Añadido

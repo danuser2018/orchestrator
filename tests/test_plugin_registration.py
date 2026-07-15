@@ -27,6 +27,11 @@ def test_successful_plugin_registration(client):
     assert "coin" in ids
     assert "dice" in ids
     assert "random-number" in ids
+    assert "volume-up" in ids
+    assert "volume-down" in ids
+    assert "volume-status" in ids
+    assert "mute" in ids
+    assert "unmute" in ids
     
     # Verificar que los campos sean strings no vacíos
     for cap in registered:
