@@ -11,7 +11,7 @@ from .config import settings
 class PluginNotFoundError(Exception):
     pass
 
-class IntentResolver:
+class ExecutionPlanner:
     def __init__(
         self, 
         plugin_manager: PluginManager, 
@@ -155,7 +155,7 @@ class IntentResolver:
         )
         return ExecutionPlan(steps=[step])
 
-class PluginExecutor:
+class PlanExecutor:
     def __init__(self, plugin_manager: PluginManager):
         self.plugin_manager = plugin_manager
 
@@ -195,13 +195,5 @@ class PluginExecutor:
             execution_time_ms=execution_time
         )
 
-class Router(IntentResolver):
-    # Kept for backward compatibility with external code using Router class name.
-    async def route_request(self, request: UserRequest) -> Tuple[Plugin | None, PluginContext]:
-        plan = await self.resolve(request)
-        if not plan.steps:
-            return None, PluginContext(raw_text=request.text, normalized_text=self.normalize_text(request.text))
-        step = plan.steps[0]
-        plugin = self.plugin_manager.get_plugin(step.plugin)
-        return plugin, step.context
+
 

@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from core.api import router as api_router
 from core.plugin_manager import PluginManager
-from core.engine import IntentResolver, PluginExecutor, PluginNotFoundError
+from core.engine import ExecutionPlanner, PlanExecutor, PluginNotFoundError
 from core.similarity import RapidFuzzSimilarityEngine
 from core.logger import logger
 from core.config import settings
@@ -20,8 +20,8 @@ async def lifespan(app: FastAPI):
     app.state.plugin_manager = plugin_manager
     
     similarity_engine = RapidFuzzSimilarityEngine()
-    app.state.resolver = IntentResolver(plugin_manager, similarity_engine)
-    app.state.executor = PluginExecutor(plugin_manager)
+    app.state.planner = ExecutionPlanner(plugin_manager, similarity_engine)
+    app.state.executor = PlanExecutor(plugin_manager)
 
     
     # Publish capabilities to System Service

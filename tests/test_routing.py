@@ -1,140 +1,124 @@
 import pytest
-from core.engine import Router
+from core.engine import ExecutionPlanner
 from core.models import UserRequest
 from core.plugin_manager import PluginManager
 from core.similarity import RapidFuzzSimilarityEngine
 
 @pytest.fixture
-def router():
+def planner():
     manager = PluginManager(plugins_dir="plugins")
     manager.discover_and_load()
     similarity_engine = RapidFuzzSimilarityEngine()
-    return Router(plugin_manager=manager, similarity_engine=similarity_engine)
+    return ExecutionPlanner(plugin_manager=manager, similarity_engine=similarity_engine)
 
 @pytest.mark.asyncio
-async def test_route_author_plugin(router):
+async def test_route_author_plugin(planner):
     req = UserRequest(text="¿Quién es el autor de Nova?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "AuthorPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "AuthorPlugin"
 
 @pytest.mark.asyncio
-async def test_route_version_plugin(router):
+async def test_route_version_plugin(planner):
     req = UserRequest(text="¿Qué versión tienes?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "VersionPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "VersionPlugin"
 
 @pytest.mark.asyncio
-async def test_route_help_plugin(router):
+async def test_route_help_plugin(planner):
     req = UserRequest(text="Ayuda")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "HelpPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "HelpPlugin"
 
 @pytest.mark.asyncio
-async def test_route_time_plugin(router):
+async def test_route_time_plugin(planner):
     req = UserRequest(text="¿Qué hora marca el reloj?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "TimePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "TimePlugin"
 
 @pytest.mark.asyncio
-async def test_route_date_plugin_mes(router):
+async def test_route_date_plugin_mes(planner):
     req = UserRequest(text="¿En qué mes estamos?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "DatePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "DatePlugin"
 
 @pytest.mark.asyncio
-async def test_route_date_plugin_ano(router):
+async def test_route_date_plugin_ano(planner):
     req = UserRequest(text="¿En qué año estamos?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "DatePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "DatePlugin"
 
 @pytest.mark.asyncio
-async def test_route_date_plugin_fecha(router):
+async def test_route_date_plugin_fecha(planner):
     req = UserRequest(text="Fecha actual.")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "DatePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "DatePlugin"
 
 @pytest.mark.asyncio
-async def test_route_coin_plugin(router):
+async def test_route_coin_plugin(planner):
     req = UserRequest(text="Lanza una moneda al aire.")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "CoinPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "CoinPlugin"
 
 @pytest.mark.asyncio
-async def test_route_dice_plugin(router):
+async def test_route_dice_plugin(planner):
     req = UserRequest(text="Tira los dados.")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "DicePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "DicePlugin"
 
 @pytest.mark.asyncio
-async def test_route_random_number_plugin_1(router):
+async def test_route_random_number_plugin_1(planner):
     req = UserRequest(text="Dame un número aleatorio.")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "RandomNumberPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "RandomNumberPlugin"
 
 @pytest.mark.asyncio
-async def test_route_random_number_plugin_2(router):
+async def test_route_random_number_plugin_2(planner):
     req = UserRequest(text="Número al azar.")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "RandomNumberPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "RandomNumberPlugin"
 
 @pytest.mark.asyncio
-async def test_route_volume_up_plugin(router):
+async def test_route_volume_up_plugin(planner):
     req = UserRequest(text="Sube un poco el volumen")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "VolumeUpPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "VolumeUpPlugin"
 
 @pytest.mark.asyncio
-async def test_route_volume_down_plugin(router):
+async def test_route_volume_down_plugin(planner):
     req = UserRequest(text="Ponlo más bajo")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "VolumeDownPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "VolumeDownPlugin"
 
 @pytest.mark.asyncio
-async def test_route_volume_status_plugin(router):
+async def test_route_volume_status_plugin(planner):
     req = UserRequest(text="¿Qué volumen tengo?")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "VolumeStatusPlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "VolumeStatusPlugin"
 
 @pytest.mark.asyncio
-async def test_route_mute_plugin(router):
+async def test_route_mute_plugin(planner):
     req = UserRequest(text="Silénciate")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "MutePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "MutePlugin"
 
 @pytest.mark.asyncio
-async def test_route_unmute_plugin(router):
+async def test_route_unmute_plugin(planner):
     req = UserRequest(text="Activa el sonido")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "UnmutePlugin"
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "UnmutePlugin"
