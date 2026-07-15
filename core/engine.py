@@ -2,13 +2,16 @@ import re
 import unicodedata
 from typing import Tuple, List, Optional
 from plugins.base import Plugin
-from .models import UserRequest, PluginContext
+from .models import UserRequest, PluginContext, ExecutionPlanStep, ExecutionPlan, AssistantResponse
 from .plugin_manager import PluginManager
 from .similarity import SimilarityEngine
 from .logger import logger
 from .config import settings
 
-class PluginMatcher:
+class PluginNotFoundError(Exception):
+    pass
+
+class IntentResolver:
     def __init__(
         self, 
         plugin_manager: PluginManager, 
@@ -27,15 +30,22 @@ class PluginMatcher:
         text = re.sub(r'[^\w\s]', ' ', text)
         return ' '.join(text.split())
 
-    async def route_request(self, request: UserRequest) -> Tuple[Plugin | None, PluginContext]:
+    async def resolve(self, request: UserRequest) -> ExecutionPlan:
         normalized_text = self.normalize_text(request.text)
         context = PluginContext(raw_text=request.text, normalized_text=normalized_text)
         
         # Guard short-circuit if user text is empty
         if not normalized_text:
             logger.info("Empty user query. Defaulting to FallbackPlugin.")
-            fallback = self.plugin_manager.get_plugin("FallbackPlugin")
-            return fallback, context
+            step = ExecutionPlanStep(
+                plugin="FallbackPlugin",
+                confidence=0.0,
+                parameters={},
+                channel="voice",
+                context=context,
+                security={}
+            )
+            return ExecutionPlan(steps=[step])
             
         plugins = self.plugin_manager.get_active_plugins()
         candidate_scores = []
@@ -73,16 +83,30 @@ class PluginMatcher:
 
         if not candidate_scores:
             logger.info("No active plugins found. Using FallbackPlugin.")
-            fallback = self.plugin_manager.get_plugin("FallbackPlugin")
-            return fallback, context
+            step = ExecutionPlanStep(
+                plugin="FallbackPlugin",
+                confidence=0.0,
+                parameters={},
+                channel="voice",
+                context=context,
+                security={}
+            )
+            return ExecutionPlan(steps=[step])
 
         first = candidate_scores[0]
         
         # Check minimum similarity threshold
         if first["score"] < self.similarity_threshold:
             logger.info(f"Top candidate {first['plugin'].name} score {first['score']:.2f} below threshold {self.similarity_threshold}. Using FallbackPlugin.")
-            fallback = self.plugin_manager.get_plugin("FallbackPlugin")
-            return fallback, context
+            step = ExecutionPlanStep(
+                plugin="FallbackPlugin",
+                confidence=first["score"],
+                parameters={},
+                channel="voice",
+                context=context,
+                security={}
+            )
+            return ExecutionPlan(steps=[step])
 
         # Check for ties/ambiguities with the runner-up
         if len(candidate_scores) > 1:
@@ -97,21 +121,87 @@ class PluginMatcher:
                 
                 if first["priority"] > second["priority"]:
                     logger.info(f"Resolved tie in favor of {first['plugin'].name} by higher priority ({first['priority']} > {second['priority']})")
-                    return first["plugin"], context
+                    selected_plugin = first["plugin"]
+                    confidence = first["score"]
                 elif second["priority"] > first["priority"]:
                     logger.info(f"Resolved tie in favor of {second['plugin'].name} by higher priority ({second['priority']} > {first['priority']})")
-                    return second["plugin"], context
+                    selected_plugin = second["plugin"]
+                    confidence = second["score"]
                 else:
                     logger.warning(
                         f"Persistent tie between {first['plugin'].name} and {second['plugin'].name}. Both have priority {first['priority']}. Defaulting to FallbackPlugin."
                     )
-                    fallback = self.plugin_manager.get_plugin("FallbackPlugin")
-                    return fallback, context
+                    selected_plugin = self.plugin_manager.get_plugin("FallbackPlugin")
+                    confidence = 0.0
+                
+                step = ExecutionPlanStep(
+                    plugin=selected_plugin.name if selected_plugin else "FallbackPlugin",
+                    confidence=confidence,
+                    parameters={},
+                    channel="voice",
+                    context=context,
+                    security={}
+                )
+                return ExecutionPlan(steps=[step])
 
         logger.info(f"Selected plugin: {first['plugin'].name} with score: {first['score']:.2f} and winning phrase: '{first['best_phrase']}'")
-        return first["plugin"], context
+        step = ExecutionPlanStep(
+            plugin=first["plugin"].name,
+            confidence=first["score"],
+            parameters={},
+            channel="voice",
+            context=context,
+            security={}
+        )
+        return ExecutionPlan(steps=[step])
 
-class Router(PluginMatcher):
+class PluginExecutor:
+    def __init__(self, plugin_manager: PluginManager):
+        self.plugin_manager = plugin_manager
+
+    async def execute_plan(self, plan: ExecutionPlan) -> AssistantResponse:
+        import time
+        start_time = time.time()
+        
+        last_plugin_name = "None"
+        last_speech = ""
+        success = True
+        
+        for step in plan.steps:
+            plugin = self.plugin_manager.get_plugin(step.plugin)
+            if not plugin:
+                logger.error(f"Plugin {step.plugin} not found in execution plan.")
+                raise PluginNotFoundError(f"El plugin '{step.plugin}' no está registrado en el sistema.")
+            
+            last_plugin_name = plugin.name
+            try:
+                result = await plugin.execute(step.context)
+                last_speech = result.speech
+                if not result.success:
+                    logger.warning(f"Plugin {plugin.name} execution failed.")
+                    success = False
+                    break
+            except Exception as e:
+                logger.error(f"Exception during execution of plugin {plugin.name}: {e}", exc_info=True)
+                success = False
+                last_speech = "Ha ocurrido un error interno al ejecutar la acción."
+                break
+                
+        execution_time = int((time.time() - start_time) * 1000)
+        return AssistantResponse(
+            success=success,
+            plugin_used=last_plugin_name,
+            speech=last_speech,
+            execution_time_ms=execution_time
+        )
+
+class Router(IntentResolver):
     # Kept for backward compatibility with external code using Router class name.
-    pass
+    async def route_request(self, request: UserRequest) -> Tuple[Plugin | None, PluginContext]:
+        plan = await self.resolve(request)
+        if not plan.steps:
+            return None, PluginContext(raw_text=request.text, normalized_text=self.normalize_text(request.text))
+        step = plan.steps[0]
+        plugin = self.plugin_manager.get_plugin(step.plugin)
+        return plugin, step.context
 

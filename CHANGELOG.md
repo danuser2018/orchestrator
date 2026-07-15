@@ -17,6 +17,19 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [2.6.0] - 2026-07-15
+
+### Añadido
+- Nuevos endpoints `POST /api/v1/resolve` para resolver intenciones a un plan estructurado, y `POST /api/v1/execute-plan` para ejecutar planes secuenciales.
+- Manejadores de excepciones globales para formatear los errores de validación (`ValidationError` en 422) y plugins no encontrados (`PluginNotFoundError` en 400) siguiendo la especificación global ADR-004.
+- Nuevos modelos Pydantic `ExecutionPlanStep` y `ExecutionPlan`.
+- Suite de pruebas unitarias específicas para resolver y ejecutar planes (`tests/test_resolver.py`, `tests/test_executor.py`) y pruebas de integración para los nuevos endpoints (`tests/test_api.py`).
+
+### Cambiado
+- Refactorizado el motor interno dividiendo el antiguo `PluginMatcher` en `IntentResolver` y `PluginExecutor`.
+- Modificado el endpoint `POST /api/v1/execute` para que actúe como puente secuencial interno de `resolve` y `execute_plan` preservando la compatibilidad total.
+- La clase `Router` ahora hereda de `IntentResolver` e implementa el método obsoleto `route_request` para compatibilidad de tests heredados.
+
 ## [2.5.0] - 2026-07-15
 
 ### Añadido
@@ -269,4 +282,4 @@ Los cambios se agrupan en las siguientes categorías:
 
 -->
 
-[Sin publicar]: https://github.com/danuser2018/tts-capability/compare/HEAD...HEAD
+[Sin publicar]: https://github.com/danuser2018/orchestrator/compare/HEAD...HEAD
