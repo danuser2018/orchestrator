@@ -1,5 +1,5 @@
 import pytest
-from core.engine import PluginExecutor, PluginNotFoundError
+from core.engine import PlanExecutor, PluginNotFoundError
 from core.models import ExecutionPlan, ExecutionPlanStep, PluginContext, PluginResult, AssistantResponse
 from core.plugin_manager import PluginManager
 from plugins.base import Plugin
@@ -8,7 +8,7 @@ from plugins.base import Plugin
 def executor():
     manager = PluginManager(plugins_dir="plugins")
     manager.discover_and_load()
-    return PluginExecutor(plugin_manager=manager)
+    return PlanExecutor(plugin_manager=manager)
 
 class MockSuccessPlugin(Plugin):
     @property
@@ -125,3 +125,13 @@ async def test_execute_plan_plugin_exception(executor):
     assert res.success is False
     assert res.plugin_used == "MockExceptionPlugin"
     assert res.speech == "Ha ocurrido un error interno al ejecutar la acción."
+
+@pytest.mark.asyncio
+async def test_execute_plan_empty_steps(executor):
+    plan = ExecutionPlan(steps=[])
+    res = await executor.execute_plan(plan)
+    assert isinstance(res, AssistantResponse)
+    assert res.success is True
+    assert res.plugin_used == "None"
+    assert res.speech == ""
+

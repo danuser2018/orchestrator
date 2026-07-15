@@ -17,6 +17,18 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.0.0] - 2026-07-15
+
+### Cambiado
+- Renombradas las clases principales del motor: `IntentResolver` pasa a ser `ExecutionPlanner` y `PluginExecutor` pasa a ser `PlanExecutor`.
+- Actualizados los handlers de FastAPI y el arranque del servicio para registrar `app.state.planner` y `app.state.executor` en el lifespan.
+- Consolidados los tests del motor de planificación en `tests/test_planner.py`.
+
+### Eliminado
+- Eliminado definitivamente el endpoint legado `POST /api/v1/execute` de la API pública.
+- Eliminada la clase de compatibilidad interna `Router` y su método `route_request`.
+- Eliminado el archivo de pruebas redundante `tests/test_engine.py` al integrarse en `test_planner.py`.
+
 ## [2.6.0] - 2026-07-15
 
 ### Añadido

@@ -1,40 +1,54 @@
 import pytest
-import logging
-from unittest.mock import MagicMock
-from core.engine import Router
-from core.models import UserRequest, PluginResult, PluginContext
+from core.engine import ExecutionPlanner
+from core.models import UserRequest, ExecutionPlan, ExecutionPlanStep, PluginContext, PluginResult
 from core.plugin_manager import PluginManager
 from core.similarity import RapidFuzzSimilarityEngine
+from unittest.mock import MagicMock
 from plugins.base import Plugin
 
 @pytest.fixture
-def router():
+def planner():
     manager = PluginManager(plugins_dir="plugins")
     manager.discover_and_load()
     similarity_engine = RapidFuzzSimilarityEngine()
-    return Router(plugin_manager=manager, similarity_engine=similarity_engine)
+    return ExecutionPlanner(plugin_manager=manager, similarity_engine=similarity_engine)
 
-def test_normalize_text(router):
-    assert router.normalize_text("¿Qué tiempo hace hoy, eh?") == "que tiempo hace hoy eh"
-    assert router.normalize_text("¡Hola mundo!") == "hola mundo"
-    assert router.normalize_text("MAYÚSCULAS") == "mayusculas"
+def test_normalize_text(planner):
+    assert planner.normalize_text("¿Qué tiempo hace hoy, eh?") == "que tiempo hace hoy eh"
+    assert planner.normalize_text("¡Hola mundo!") == "hola mundo"
+    assert planner.normalize_text("MAYÚSCULAS") == "mayusculas"
 
 @pytest.mark.asyncio
-async def test_route_request_successful_match(router):
+async def test_resolve_successful_match(planner):
     req = UserRequest(text="Hola Nova qué tal te va hoy")
-    plugin, context = await router.route_request(req)
+    plan = await planner.resolve(req)
     
-    assert plugin is not None
-    assert plugin.name == "GreetingPlugin"
-    assert context.normalized_text == "hola nova que tal te va hoy"
+    assert isinstance(plan, ExecutionPlan)
+    assert len(plan.steps) == 1
+    step = plan.steps[0]
+    assert step.plugin == "GreetingPlugin"
+    assert step.context.normalized_text == "hola nova que tal te va hoy"
 
 @pytest.mark.asyncio
-async def test_route_request_below_threshold_fallback(router):
-    req = UserRequest(text="dibuja un dinosaurio azul")
-    plugin, context = await router.route_request(req)
+async def test_resolve_empty_input_fallback(planner):
+    req = UserRequest(text="   ")
+    plan = await planner.resolve(req)
     
-    assert plugin is not None
-    assert plugin.name == "FallbackPlugin"
+    assert isinstance(plan, ExecutionPlan)
+    assert len(plan.steps) == 1
+    step = plan.steps[0]
+    assert step.plugin == "FallbackPlugin"
+    assert step.confidence == 0.0
+
+@pytest.mark.asyncio
+async def test_resolve_below_threshold_fallback(planner):
+    req = UserRequest(text="dibuja un dinosaurio azul")
+    plan = await planner.resolve(req)
+    
+    assert isinstance(plan, ExecutionPlan)
+    assert len(plan.steps) == 1
+    step = plan.steps[0]
+    assert step.plugin == "FallbackPlugin"
 
 class MockPluginA(Plugin):
     @property
@@ -75,18 +89,17 @@ class MockPluginB(Plugin):
         return PluginResult(success=True, speech="B")
 
 @pytest.mark.asyncio
-async def test_route_request_tie_breaker_by_priority(router):
+async def test_resolve_tie_breaker_by_priority(planner):
     mock_a = MockPluginA()
     mock_b = MockPluginB()
-    router.plugin_manager.plugins["MockPluginA"] = mock_a
-    router.plugin_manager.plugins["MockPluginB"] = mock_b
+    planner.plugin_manager.plugins["MockPluginA"] = mock_a
+    planner.plugin_manager.plugins["MockPluginB"] = mock_b
     
-    # Text is highly similar to both
     req = UserRequest(text="activar sistema de alarma")
-    plugin, context = await router.route_request(req)
+    plan = await planner.resolve(req)
     
-    assert plugin is not None
-    assert plugin.name == "MockPluginA"
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "MockPluginA"
 
 class MockPluginAEqualPriority(MockPluginA):
     @property
@@ -99,37 +112,28 @@ class MockPluginBEqualPriority(MockPluginB):
         return 80
 
 @pytest.mark.asyncio
-async def test_route_request_persistent_tie_fallback(router):
+async def test_resolve_persistent_tie_fallback(planner):
     mock_a = MockPluginAEqualPriority()
     mock_b = MockPluginBEqualPriority()
-    router.plugin_manager.plugins["MockPluginA"] = mock_a
-    router.plugin_manager.plugins["MockPluginB"] = mock_b
+    planner.plugin_manager.plugins["MockPluginA"] = mock_a
+    planner.plugin_manager.plugins["MockPluginB"] = mock_b
     
     req = UserRequest(text="activar sistema de alarma")
-    plugin, context = await router.route_request(req)
+    plan = await planner.resolve(req)
     
-    assert plugin is not None
-    assert plugin.name == "FallbackPlugin"
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "FallbackPlugin"
 
 @pytest.mark.asyncio
-async def test_route_request_empty_input_fallback(router):
-    req = UserRequest(text="   ")
-    plugin, context = await router.route_request(req)
-    
-    assert plugin is not None
-    assert plugin.name == "FallbackPlugin"
-
-@pytest.mark.asyncio
-async def test_route_request_normalization_coherence(router):
+async def test_resolve_normalization_coherence(planner):
     req = UserRequest(text="¿Hóla Nôvá qué tàl?")
-    plugin, context = await router.route_request(req)
+    plan = await planner.resolve(req)
     
-    assert plugin is not None
-    assert plugin.name == "GreetingPlugin"
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "GreetingPlugin"
 
 @pytest.mark.asyncio
-async def test_route_request_diagnostic_logging(router):
-    # Mock logger to verify it receives diagnostic calls
+async def test_resolve_diagnostic_logging(planner):
     from core.engine import logger as engine_logger
     
     original_debug = engine_logger.debug
@@ -140,14 +144,11 @@ async def test_route_request_diagnostic_logging(router):
     
     try:
         req = UserRequest(text="pon musica")
-        await router.route_request(req)
+        await planner.resolve(req)
         
-        # Verify logger.debug calls
         assert engine_logger.debug.call_count >= 2
-        # Verify logger.info call
         assert engine_logger.info.call_count >= 1
     finally:
         engine_logger.debug = original_debug
         engine_logger.info = original_info
-
 

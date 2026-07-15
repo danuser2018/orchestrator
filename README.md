@@ -25,55 +25,66 @@ El **Orchestrator** es el componente central de un asistente de voz personal que
 La arquitectura se divide en los siguientes componentes principales:
 
 - **API Layer**: Construida sobre FastAPI, expone los endpoints HTTP necesarios para interactuar con el Orchestrator.
-- **Router (Selection Engine)**: Motor de enrutamiento rápido que analiza la entrada de texto y calcula la similitud semántica ponderada frente a las frases de ejemplo de cada plugin cargado.
+- **ExecutionPlanner**: Motor de planificación rápido que analiza la entrada de texto y calcula la similitud semántica ponderada frente a las frases de ejemplo de cada plugin cargado para construir un plan de ejecución (`ExecutionPlan`).
 - **Plugin Manager**: Encargado de descubrir, cargar dinámicamente, registrar y mantener en memoria las instancias de los plugins disponibles. Tras cargar todos los plugins, se asiste el proceso de recopilación para la posterior publicación de las capacidades en `system-service`.
-- **ResponseHandler**: Transforma el resultado estructurado (`PluginResult`) que emite el plugin en la respuesta estandarizada que devolverá la API al servicio consumidor.
+- **PlanExecutor**: Transforma un plan de ejecución (`ExecutionPlan`) en una serie de llamadas secuenciales a los plugins indicados y emite el resultado estructurado (`AssistantResponse`) que devolverá la API al servicio consumidor.
 - **Configuration**: Gestor centralizado para la configuración del Orchestrator y de cada plugin, usando variables de entorno o archivos `.env`.
 - **Logging**: Sistema unificado de observabilidad para trazar el flujo completo de la petición, esencial para depurar la selección de plugins y la ejecución.
 
-## 4. Flujo completo de ejecución
+## 4. El ciclo de vida de una petición sigue un flujo desacoplado en dos fases independientes:
 
-El ciclo de vida de una petición sigue estos pasos:
-
+### Fase 1: Planificación (Resolve)
 ```text
-+-------------+         +-----------+        +--------+        +----------------+       +---------------+
-| Cliente STT |         | API Layer |        | Router |        | Plugin Manager |       | WeatherPlugin |
-+-------------+         +-----------+        +--------+        +----------------+       +---------------+
-       |                      |                  |                     |                        |
-       | POST /api/v1/execute |                  |                     |                        |
-       | {"text": "..."}      |                  |                     |                        |
-       |--------------------->|                  |                     |                        |
-       |                      | route_request()  |                     |                        |
-       |                      |----------------->|                     |                        |
-       |                      |                  | get_active_plugins()|                        |
-       |                      |                  |-------------------->|                        |
-       |                      |                  |                     |                        |
-       |                      |                  | [Plugins...]        |                        |
-       |                      |                  |<--------------------|                        |
-       |                      |                  |                     |                        |
-       |                      |                  | Calcular scores     |                        |
-       |                      |                  |-----------------+   |                        |
-       |                      |                  |                 |   |                        |
-       |                      |                  |<----------------+   |                        |
-       |                      |                  |                     |                        |
-       |                      | Plugin ganador   |                     |                        |
-       |                      |<-----------------|                     |                        |
-       |                      |                  |                     |                        |
-       |                      | execute(Context) |                     |                        |
-       |                      |---------------------------------------------------------------->|
-       |                      |                  |                     |                        |
-       |                      |                  |                     |   Obtener clima        |
-       |                      |                  |                     |   ------------------+  |
-       |                      |                  |                     |                     |  |
-       |                      |                  |                     |   <-----------------+  |
-       |                      |                  |                     |                        |
-       |                      | PluginResult(success=True, speech="Hoy hace sol")               |
-       |                      |<----------------------------------------------------------------|
-       |                      |                  |                     |                        |
-       | AssistantResponse    |                  |                     |                        |
-       |<---------------------|                  |                     |                        |
-       |                      |                  |                     |                        |
-+-------------+         +-----------+        +--------+        +----------------+       +---------------+
++-------------+         +-----------+        +------------------+        +----------------+
+| IM Client   |         | API Layer |        | ExecutionPlanner |        | Plugin Manager |
++-------------+         +-----------+        +------------------+        +----------------+
+       |                      |                       |                           |
+       | POST /api/v1/resolve |                       |                           |
+       | {"text": "..."}      |                       |                           |
+       |--------------------->|                       |                           |
+       |                      | resolve()             |                           |
+       |                      |---------------------->|                           |
+       |                      |                       | get_active_plugins()      |
+       |                      |                       |-------------------------->|
+       |                      |                       |                           |
+       |                      |                       | [Plugins...]              |
+       |                      |                       |<--------------------------|
+       |                      |                       |                           |
+       |                      |                       | Calcular similitud        |
+       |                      |                       |-----------------+         |
+       |                      |                       |                 |         |
+       |                      |                       |<----------------+         |
+       |                      |                       |                           |
+       |                      | ExecutionPlan         |                           |
+       |                      |<----------------------|                           |
+       | ExecutionPlan        |                       |                           |
+       |<---------------------|                       |                           |
+```
+
+### Fase 2: Ejecución (Execute Plan)
+```text
++-------------+         +-----------+        +--------------+        +---------------+
+| IM Client   |         | API Layer |        | PlanExecutor |        | WeatherPlugin |
++-------------+         +-----------+        +--------------+        +---------------+
+       |                      |                     |                        |
+       | POST /execute-plan   |                     |                        |
+       | (ExecutionPlan)      |                     |                        |
+       |--------------------->|                     |                        |
+       |                      | execute_plan()      |                        |
+       |                      |-------------------->|                        |
+       |                      |                     | execute(Context)       |
+       |                      |                     |----------------------->|
+       |                      |                     |                        |
+       |                      |                     |   Obtener clima        |
+       |                      |                     |   ------------------+  |
+       |                      |                     |                     |  |
+       |                      |                     |   <-----------------+  |
+       |                      |                     |                        |
+       |                      |                     | PluginResult           |
+       |                      |                     |<-----------------------|
+       |                      |                     |                        |
+       | AssistantResponse    |                     |                        |
+       |<---------------------|                     |                        |
 ```
 
 ## 5. Sistema de plugins
@@ -97,7 +108,7 @@ Cada plugin funcional declara:
 - **Priority**: Nivel de prioridad (0 a 100) usado para resolver empates y situaciones de ambigüedad.
 
 **Cálculo de la puntuación:**
-1. El `Router` normaliza el texto de entrada y cada frase de ejemplo (minúsculas, eliminar signos diacríticos y de puntuación).
+1. El `ExecutionPlanner` normaliza el texto de entrada y cada frase de ejemplo (minúsculas, eliminar signos diacríticos y de puntuación).
 2. Para cada plugin, calcula la similitud combinada entre el texto del usuario y cada frase de ejemplo utilizando cuatro métricas de `rapidfuzz` ponderadas:
    - `ratio` (peso: 0.20)
    - `partial_ratio` (peso: 0.30)
@@ -200,37 +211,74 @@ class Plugin(ABC):
         pass
 ```
 
-## 8. API REST
+Construida con FastAPI, proporciona endpoints desacoplados para planificar y ejecutar de manera independiente.
 
-Construida con FastAPI, proporciona un punto de entrada síncrono para interactuar con el sistema.
+**Endpoints Principales:**
 
-**Endpoint Principal:**
-`POST /api/v1/execute`
+### 1. Resolver Intención
+`POST /api/v1/resolve`
+
+Genera un plan de ejecución estructurado a partir del texto del usuario.
 
 **Request Example:**
 ```json
 {
-  "text": "Abre Firefox, por favor."
+  "text": "¿Qué tiempo hace?"
 }
 ```
 
-**Response Example (Éxito):**
+**Response Example:**
 ```json
 {
-  "success": true,
-  "plugin_used": "SystemAppsPlugin",
-  "speech": "He abierto Firefox",
-  "execution_time_ms": 45
+  "steps": [
+    {
+      "plugin": "WeatherPlugin",
+      "confidence": 100.0,
+      "parameters": {},
+      "channel": "voice",
+      "context": {
+        "raw_text": "¿Qué tiempo hace?",
+        "normalized_text": "que tiempo hace",
+        "metadata": {}
+      },
+      "security": {}
+    }
+  ]
 }
 ```
 
-**Response Example (Ningún plugin coincide):**
+### 2. Ejecutar Plan
+`POST /api/v1/execute-plan`
+
+Ejecuta el plan estructurado resuelto previamente y produce la respuesta para el usuario.
+
+**Request Example:**
+```json
+{
+  "steps": [
+    {
+      "plugin": "WeatherPlugin",
+      "confidence": 100.0,
+      "parameters": {},
+      "channel": "voice",
+      "context": {
+        "raw_text": "¿Qué tiempo hace?",
+        "normalized_text": "que tiempo hace",
+        "metadata": {}
+      },
+      "security": {}
+    }
+  ]
+}
+```
+
+**Response Example:**
 ```json
 {
   "success": true,
-  "plugin_used": "FallbackPlugin",
-  "speech": "No he entendido la petición.",
-  "execution_time_ms": 2
+  "plugin_used": "WeatherPlugin",
+  "speech": "22 grados. No parece que vaya a llover.",
+  "execution_time_ms": 15
 }
 ```
 
@@ -267,7 +315,7 @@ orchestrator/
 │   ├── api.py                # Endpoints FastAPI
 │   ├── config.py             # Configuración global
 │   ├── datetime_service.py   # Utilidad de fecha/hora del sistema (helper)
-│   ├── engine.py             # Motor de Routing y Scoring
+│   ├── engine.py             # Planificador (ExecutionPlanner) y Ejecutor (PlanExecutor)
 │   ├── logger.py             # Configuración de logs
 │   ├── models.py             # Definición de Pydantic models (UserRequest, etc)
 │   ├── plugin_manager.py     # Lógica de descubrimiento de plugins
@@ -308,7 +356,7 @@ orchestrator/
 
 El sistema incorpora *structured logging* (usando librerías como `logging` estándar configurada o `loguru`).
 - **Nivel INFO**: Cada petición que entra, texto normalizado, qué plugin fue seleccionado, score ganador y tiempo total de ejecución.
-- **Nivel DEBUG**: Puntuación desglosada por cada plugin (muy útil para depurar el Router).
+- **Nivel DEBUG**: Puntuación desglosada por cada plugin (muy útil para depurar el ExecutionPlanner).
 - **Nivel ERROR**: Excepciones capturadas y tiempos de inactividad de las APIs en los plugins.
 
 *Trazabilidad:* Para rastrear el flujo, se puede añadir un `request_id` único a cada petición en el momento que cruza el `API Layer`.
@@ -461,9 +509,9 @@ class WeatherPlugin(Plugin):
 **Flujo:**
 1. Usuario dice: *"Dime qué tiempo hace, por favor."*
 2. Texto normalizado: *"dime que tiempo hace por favor"*
-3. Router evalúa `WeatherPlugin` frente a sus frases de ejemplo (ej. *"¿Qué tiempo hace?"*).
+3. ExecutionPlanner evalúa `WeatherPlugin` frente a sus frases de ejemplo (ej. *"¿Qué tiempo hace?"*).
 4. El score calculado mediante la ponderación de RapidFuzz es superior a `60.0` (por ejemplo, `78.50`).
-5. Al ser la puntuación más alta y superar el umbral, gana `WeatherPlugin` y se invoca `execute()`.
+5. Al ser la puntuación más alta y superar el umbral, gana `WeatherPlugin` y se invoca su plan mediante PlanExecutor.
 6. Se devuelve: `{"speech": "Actualmente hace 22 grados. No parece que vaya a llover."}`
 
 ## 16. Recomendación final
