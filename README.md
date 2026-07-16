@@ -142,6 +142,10 @@ Cada plugin funcional declara:
 | `VolumeStatusPlugin`| `"volume-status"` | `60` | Lista de 10 frases |
 | `MutePlugin` | `"mute"` | `60` | Lista de 10 frases |
 | `UnmutePlugin` | `"unmute"` | `60` | Lista de 10 frases |
+| `TodayHolidayPlugin` | `"today_holiday"` | `60` | Lista de 10 frases |
+| `NextHolidayPlugin` | `"next_holiday"` | `60` | Lista de 10 frases |
+| `DaysUntilNextHolidayPlugin`| `"days_until_next_holiday"`| `60` | Lista de 10 frases |
+| `HolidaysOfYearPlugin`| `"holidays_of_year"`| `60` | Lista de 10 frases |
 | `FallbackPlugin` | `"fallback"` | `0` | `[]` |
 
 **Directrices para Desarrolladores (Asignación de Prioridades):**
@@ -323,7 +327,9 @@ orchestrator/
 │   ├── similarity.py         # Motor de similitud semántica (RapidFuzz)
 │   ├── system_service_client.py # Cliente HTTP para system-service
 │   ├── weather_service_client.py # Cliente HTTP para weather-service
-│   └── host_service_client.py # Cliente HTTP para host-service
+│   ├── host_service_client.py # Cliente HTTP para host-service
+│   ├── calendar_service_client.py # Cliente HTTP y lógica de negocio para calendar-service
+│   └── time_formatter.py     # Utilidad para formatear tiempos en lenguaje natural
 ├── plugins/
 │   ├── base.py          # Definición de las interfaces abstractas (Plugin, etc)
 │   ├── capabilities/    # Plugin de capacidades
@@ -344,8 +350,10 @@ orchestrator/
 │   │   └── main.py      # Clases CoinPlugin, DicePlugin, RandomNumberPlugin
 │   ├── volume/          # Plugins de volumen (subir, bajar, estado, silenciar, activar sonido)
 │   │   └── main.py      # Clases VolumeUpPlugin, VolumeDownPlugin, VolumeStatusPlugin, MutePlugin, UnmutePlugin
-│   └── weather/         # Plugin del tiempo
-│       └── main.py      # Clase del plugin
+│   ├── weather/         # Plugin del tiempo
+│   │   └── main.py      # Clase del plugin
+│   └── holidays/        # Plugins de festivos (hoy, siguiente, días restantes, año completo)
+│       └── main.py      # Clases TodayHolidayPlugin, NextHolidayPlugin, DaysUntilNextHolidayPlugin, HolidaysOfYearPlugin
 ├── main.py              # Punto de entrada (uvicorn)
 ├── requirements.txt     # Dependencias del núcleo (fastapi, pydantic, etc)
 ├── Dockerfile
@@ -536,6 +544,7 @@ El Orchestrator se integra con el microservicio central `system-service` y otros
 1. **Consulta de Identidad (`GET /system/info`)**: Consumido por `IdentityPlugin`, `AuthorPlugin` y `VersionPlugin` para conocer la información básica del sistema (nombre, versión, autor, etc.) y responder preguntas de identidad, autoría y versión de forma dinámica al usuario.
 2. **Registro Automático de Capacidades (`POST /system/capabilities`)**: Ejecutado exactamente una vez durante el arranque del Orchestrator.
 3. **Consulta de Capacidades (`GET /system/capabilities`)**: Consumido por el `CapabilitiesPlugin` para listar todas las habilidades registradas en el sistema.
+4. **Consulta de Festivos (`GET /api/v1/holidays` y `GET /api/v1/holidays/next`)**: Consumido por los plugins de festivos (`TodayHolidayPlugin`, `NextHolidayPlugin`, `DaysUntilNextHolidayPlugin`, `HolidaysOfYearPlugin`) para validar el estado de festivos locales, nacionales y regionales.
 
 ### Publicación de Capacidades en el Arranque
 
@@ -560,6 +569,7 @@ La comunicación y comportamiento del Orchestrator y sus plugins se configuran m
 - `SYSTEM_SERVICE_BASE_URL` (por defecto `http://system-service:8000`): Dirección base del System Service.
 - `HOST_SERVICE_BASE_URL` (por defecto `http://host.docker.internal:8007`): Dirección base del Host Service (capa HAL).
 - `MAIL_PENDING_DIR` (por defecto `/shared/mail/pending`): Directorio donde se escriben los correos pendientes para que los procese `mail-watchdog`.
+- `CALENDAR_SERVICE_BASE_URL` (por defecto `http://calendar-service:8000`): Dirección base del servicio de calendario offline.
 - `SIMILARITY_THRESHOLD` (por defecto `60.0`): Umbral mínimo de similitud requerido para activar un plugin.
 - `TIE_BREAKER_THRESHOLD` (por defecto `5.0`): Umbral de diferencia de puntuación para resolver ambigüedades.
 - `WEIGHT_RATIO` (por defecto `0.20`), `WEIGHT_PARTIAL_RATIO` (por defecto `0.30`), `WEIGHT_TOKEN_SORT_RATIO` (por defecto `0.20`), `WEIGHT_TOKEN_SET_RATIO` (por defecto `0.30`): Pesos de los algoritmos de similitud (su suma debe ser exactamente 1.0).

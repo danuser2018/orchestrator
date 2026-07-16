@@ -122,3 +122,32 @@ async def test_route_unmute_plugin(planner):
     plan = await planner.resolve(req)
     assert len(plan.steps) == 1
     assert plan.steps[0].plugin == "UnmutePlugin"
+
+@pytest.mark.asyncio
+async def test_route_today_holiday_plugin(planner):
+    req = UserRequest(text="¿Hoy es festivo?")
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "TodayHolidayPlugin"
+
+@pytest.mark.asyncio
+async def test_route_next_holiday_plugin(planner):
+    req = UserRequest(text="¿Cuál es el próximo festivo?")
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "NextHolidayPlugin"
+
+@pytest.mark.asyncio
+async def test_route_days_until_next_holiday_plugin(planner):
+    req = UserRequest(text="¿Cuánto falta para el próximo festivo?")
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "DaysUntilNextHolidayPlugin"
+
+@pytest.mark.asyncio
+async def test_route_holidays_of_year_plugin(planner):
+    req = UserRequest(text="¿Qué festivos hay este año?")
+    plan = await planner.resolve(req)
+    assert len(plan.steps) == 1
+    assert plan.steps[0].plugin == "HolidaysOfYearPlugin"
+
