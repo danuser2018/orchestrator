@@ -17,6 +17,15 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.1.0] - 2026-07-16
+
+### Añadido
+- Cuatro nuevos plugins de consulta de festivos integrados con `calendar-service`: `TodayHolidayPlugin` (`today_holiday`), `NextHolidayPlugin` (`next_holiday`), `DaysUntilNextHolidayPlugin` (`days_until_next_holiday`) y `HolidaysOfYearPlugin` (`holidays_of_year`).
+- Cliente REST `CalendarServiceClient` y servicio compartido `NextHolidayService` en `core/calendar_service_client.py`.
+- Utilidad genérica `TimeFormatter` en `core/time_formatter.py` para humanizar los días restantes en lenguaje natural en español.
+- Configuración de `calendar_service_base_url` añadida a `core/config.py`.
+- Pruebas unitarias para los nuevos plugins y utilidades en `tests/test_holidays_plugins.py`.
+
 ## [3.0.0] - 2026-07-15
 
 ### Cambiado
