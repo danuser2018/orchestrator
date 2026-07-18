@@ -30,6 +30,9 @@ Los cambios se agrupan en las siguientes categorías:
 - Modificada la inicialización en `main.py` para conectar/desconectar el `NatsEventBus` en el lifespan del servicio FastAPI y propagarlo al `PlanExecutor`.
 - Actualizada la planificación y ejecución en `core/engine.py` para propagar los datos de correlación y canal, y realizar la publicación asíncrona y resiliente del evento de respuesta generada.
 
+### Corregido
+- Añadida la instalación de `git` en el `Dockerfile` para resolver el error al compilar la imagen debido a la falta de git para clonar la dependencia `nova-event-bus`.
+
 ## [3.1.0] - 2026-07-16
 
 ### Añadido
