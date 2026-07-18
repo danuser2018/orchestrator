@@ -24,6 +24,7 @@ Los cambios se agrupan en las siguientes categorías:
 - Nuevo fichero `core/events.py` con la definición del evento tipado `ResponseGeneratedEvent`.
 - Nuevo ADR local `doc/adr/adr-005-adicion-correlation-id-y-channel-userrequest.md` para documentar la extensión del contrato de `UserRequest`.
 - Suite de pruebas en `tests/test_event_publishing.py` para validar el happy path, resiliencia y retrocompatibilidad de la publicación de eventos.
+- Añadida prueba de integración en `tests/test_event_publishing.py` para validar la correcta serialización de `ResponseGeneratedEvent` utilizando la implementación real de `NatsEventBus` en conjunto con un mock del cliente NATS.
 
 ### Cambiado
 - Modificados los modelos `UserRequest` y `PluginContext` en `core/models.py` para admitir los campos opcionales `correlation_id` y `channel` manteniendo la compatibilidad hacia atrás.
