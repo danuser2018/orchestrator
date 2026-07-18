@@ -7,10 +7,14 @@ class HealthResponse(BaseModel):
 class UserRequest(BaseModel):
     text: str
     timestamp: Optional[float] = None
+    correlation_id: Optional[str] = None
+    channel: Optional[str] = "voice"
 
 class PluginContext(BaseModel):
     raw_text: str
     normalized_text: str
+    correlation_id: Optional[str] = None
+    channel: Optional[str] = "voice"
     metadata: Dict[str, Any] = {}
 
 class ExecutionPlanStep(BaseModel):

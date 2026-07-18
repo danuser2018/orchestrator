@@ -292,10 +292,14 @@ Definición de entidades (Modelos Pydantic):
 
 - **UserRequest**: La entrada al sistema.
   - `text` (str): Texto interpretado.
-  - `timestamp` (float): Marca de tiempo.
+  - `timestamp` (float, opcional): Marca de tiempo.
+  - `correlation_id` (str, opcional): Identificador único para el rastreo e2e.
+  - `channel` (str, opcional, por defecto "voice"): Canal de entrada.
 - **PluginContext**: La información que recibe el plugin a ejecutar.
   - `raw_text` (str): El texto original.
   - `normalized_text` (str): Texto en minúsculas y sin acentos.
+  - `correlation_id` (str, opcional): ID de correlación único.
+  - `channel` (str, opcional, por defecto "voice"): Canal de origen.
   - `metadata` (dict): Posible estado de sesión futuro.
 - **PluginResult**: Lo que devuelve el plugin.
   - `success` (bool): Éxito o fracaso de la tarea.
@@ -555,6 +559,23 @@ Al arrancar, el Orchestrator ejecuta los siguientes pasos:
    - `description`: Breve descripción pública sobre lo que hace la habilidad.
 3. Envía la lista de capacidades mediante una petición `POST /system/capabilities` a `system-service`.
 
+### Publicación de Eventos del Dominio (ResponseGeneratedEvent)
+
+El Orchestrator se integra con el bus de eventos asíncrono utilizando la librería `nova-event-bus` (conectada al broker NATS mediante la variable `NATS_URL`).
+Cuando el `PlanExecutor` finaliza la ejecución de un plan de plugin de forma exitosa, publica de manera asíncrona un evento de tipo `ResponseGeneratedEvent` bajo el subject `orchestrator.response.generated`.
+
+El payload del evento incluye:
+- `response` (str): Texto de la respuesta generada para el usuario.
+- `plugin` (str): ID del plugin que resolvió la petición.
+- `confidence` (float): Puntuación de confianza obtenida durante la resolución del plugin.
+- `timestamp` (datetime): Fecha y hora del evento en UTC.
+- `correlation_id` (str): Identificador único de correlación para trazar la petición de extremo a extremo.
+- `execution_time_ms` (int): Tiempo en milisegundos que tomó procesar la petición.
+- `channel` (str): Canal de comunicación (ej. `"voice"`).
+- `metadata` (dict): Metadatos adicionales de la sesión.
+
+El envío del evento se realiza de manera no bloqueante. En caso de fallo de conexión con el broker NATS o error en el bus de eventos, la excepción es capturada y logueada, permitiendo al Orchestrator responder exitosamente al cliente a través de la API REST sin interrupción de su ciclo de vida.
+
 ### Integración con Mail Watchdog (CapabilitiesPlugin)
 
 El `CapabilitiesPlugin` permite al usuario consultar las funciones que Nova puede realizar. La lógica incluye:
@@ -573,6 +594,7 @@ La comunicación y comportamiento del Orchestrator y sus plugins se configuran m
 - `SIMILARITY_THRESHOLD` (por defecto `60.0`): Umbral mínimo de similitud requerido para activar un plugin.
 - `TIE_BREAKER_THRESHOLD` (por defecto `5.0`): Umbral de diferencia de puntuación para resolver ambigüedades.
 - `WEIGHT_RATIO` (por defecto `0.20`), `WEIGHT_PARTIAL_RATIO` (por defecto `0.30`), `WEIGHT_TOKEN_SORT_RATIO` (por defecto `0.20`), `WEIGHT_TOKEN_SET_RATIO` (por defecto `0.30`): Pesos de los algoritmos de similitud (su suma debe ser exactamente 1.0).
+- `NATS_URL` (por defecto `nats://nats:4222`): Dirección del servidor de mensajería NATS.
 
 ### Robustez y Manejo de Errores
 

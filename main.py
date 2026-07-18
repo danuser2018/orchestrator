@@ -19,9 +19,20 @@ async def lifespan(app: FastAPI):
     plugin_manager.discover_and_load()
     app.state.plugin_manager = plugin_manager
     
+    # Initialize and connect Event Bus
+    from nova_event_bus import NatsEventBus
+    event_bus = NatsEventBus()
+    try:
+        await event_bus.connect()
+        logger.info("Successfully connected to Event Bus.")
+    except Exception as exc:
+        logger.error(f"Failed to connect to Event Bus during startup: {exc}", exc_info=True)
+    
+    app.state.event_bus = event_bus
+    
     similarity_engine = RapidFuzzSimilarityEngine()
     app.state.planner = ExecutionPlanner(plugin_manager, similarity_engine)
-    app.state.executor = PlanExecutor(plugin_manager)
+    app.state.executor = PlanExecutor(plugin_manager, event_bus=event_bus)
 
     
     # Publish capabilities to System Service
@@ -58,6 +69,12 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Shutting down Orchestrator...")
+    try:
+        await event_bus.disconnect()
+        logger.info("Successfully disconnected from Event Bus.")
+    except Exception as exc:
+        logger.error(f"Error disconnecting from Event Bus during shutdown: {exc}", exc_info=True)
+        
     plugin_manager.teardown()
 
 app = FastAPI(
