@@ -124,3 +124,73 @@ async def test_retrocompatibility_missing_correlation_id_and_channel(client):
         published_event = mock_publish.call_args[0][0]
         assert published_event.correlation_id == correlation_id
         assert published_event.channel == "voice"
+
+@pytest.mark.asyncio
+async def test_response_generated_event_serialization_integration(client):
+    app.state.plugin_manager.plugins["MockSuccessPlugin"] = MockSuccessPlugin()
+    
+    # We patch NatsClient inside nova_event_bus.client, so the actual publish runs
+    with patch("nova_event_bus.client.NatsClient") as MockNatsClient:
+        mock_client_instance = MockNatsClient.return_value
+        mock_client_instance.is_connected = True
+        mock_client_instance.publish = AsyncMock()
+        
+        # Override the app event bus client to use a new NatsEventBus which will use our MockNatsClient
+        from nova_event_bus import NatsEventBus
+        real_bus = NatsEventBus()
+        # We need to call connect so it initializes NatsClient
+        await real_bus.connect()
+        
+        # Backup original executor's event bus
+        original_bus = app.state.executor.event_bus
+        app.state.executor.event_bus = real_bus
+        
+        try:
+            plan_data = {
+                "steps": [
+                    {
+                        "plugin": "MockSuccessPlugin",
+                        "confidence": 0.95,
+                        "parameters": {},
+                        "channel": "voice",
+                        "context": {
+                            "raw_text": "test query",
+                            "normalized_text": "test query",
+                            "correlation_id": "test-correlation-123",
+                            "channel": "voice",
+                            "metadata": {"test_key": "test_val"}
+                        },
+                        "security": {}
+                    }
+                ]
+            }
+            
+            response = client.post("/api/v1/execute-plan", json=plan_data)
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            
+            # Verify the mock NatsClient.publish was called with serialized payload
+            mock_client_instance.publish.assert_called_once()
+            args, kwargs = mock_client_instance.publish.call_args
+            subject = args[0]
+            serialized_payload = args[1]
+            
+            assert subject == "orchestrator.response.generated"
+            import json
+            payload_data = json.loads(serialized_payload.decode("utf-8"))
+            assert payload_data["type"] == "ResponseGeneratedEvent"
+            assert payload_data["payload"]["response"] == "Success Speech"
+            assert payload_data["payload"]["plugin"] == "MockSuccessPlugin"
+            assert payload_data["payload"]["confidence"] == 0.95
+            assert "timestamp" in payload_data["payload"]
+            # Verify it is serialized to ISO string
+            assert isinstance(payload_data["payload"]["timestamp"], str)
+            assert payload_data["payload"]["correlation_id"] == "test-correlation-123"
+            assert payload_data["payload"]["channel"] == "voice"
+            assert payload_data["payload"]["metadata"] == {"test_key": "test_val"}
+            
+        finally:
+            # Restore
+            app.state.executor.event_bus = original_bus
+
