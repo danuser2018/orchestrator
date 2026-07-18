@@ -1,12 +1,16 @@
 import re
 import unicodedata
+import uuid
+from datetime import datetime, timezone
 from typing import Tuple, List, Optional
 from plugins.base import Plugin
+from nova_event_bus import EventBusInterface
 from .models import UserRequest, PluginContext, ExecutionPlanStep, ExecutionPlan, AssistantResponse
 from .plugin_manager import PluginManager
 from .similarity import SimilarityEngine
 from .logger import logger
 from .config import settings
+from .events import ResponseGeneratedEvent
 
 class PluginNotFoundError(Exception):
     pass
@@ -31,8 +35,16 @@ class ExecutionPlanner:
         return ' '.join(text.split())
 
     async def resolve(self, request: UserRequest) -> ExecutionPlan:
+        correlation_id = request.correlation_id or str(uuid.uuid4())
+        channel = request.channel or "voice"
+        
         normalized_text = self.normalize_text(request.text)
-        context = PluginContext(raw_text=request.text, normalized_text=normalized_text)
+        context = PluginContext(
+            raw_text=request.text,
+            normalized_text=normalized_text,
+            correlation_id=correlation_id,
+            channel=channel
+        )
         
         # Guard short-circuit if user text is empty
         if not normalized_text:
@@ -41,7 +53,7 @@ class ExecutionPlanner:
                 plugin="FallbackPlugin",
                 confidence=0.0,
                 parameters={},
-                channel="voice",
+                channel=channel,
                 context=context,
                 security={}
             )
@@ -87,7 +99,7 @@ class ExecutionPlanner:
                 plugin="FallbackPlugin",
                 confidence=0.0,
                 parameters={},
-                channel="voice",
+                channel=channel,
                 context=context,
                 security={}
             )
@@ -102,7 +114,7 @@ class ExecutionPlanner:
                 plugin="FallbackPlugin",
                 confidence=first["score"],
                 parameters={},
-                channel="voice",
+                channel=channel,
                 context=context,
                 security={}
             )
@@ -138,7 +150,7 @@ class ExecutionPlanner:
                     plugin=selected_plugin.name if selected_plugin else "FallbackPlugin",
                     confidence=confidence,
                     parameters={},
-                    channel="voice",
+                    channel=channel,
                     context=context,
                     security={}
                 )
@@ -149,15 +161,16 @@ class ExecutionPlanner:
             plugin=first["plugin"].name,
             confidence=first["score"],
             parameters={},
-            channel="voice",
+            channel=channel,
             context=context,
             security={}
         )
         return ExecutionPlan(steps=[step])
 
 class PlanExecutor:
-    def __init__(self, plugin_manager: PluginManager):
+    def __init__(self, plugin_manager: PluginManager, event_bus: Optional[EventBusInterface] = None):
         self.plugin_manager = plugin_manager
+        self.event_bus = event_bus
 
     async def execute_plan(self, plan: ExecutionPlan) -> AssistantResponse:
         import time
@@ -188,12 +201,47 @@ class PlanExecutor:
                 break
                 
         execution_time = int((time.time() - start_time) * 1000)
-        return AssistantResponse(
+        response = AssistantResponse(
             success=success,
             plugin_used=last_plugin_name,
             speech=last_speech,
             execution_time_ms=execution_time
         )
+        
+        # Publish event if execution succeeded and event bus is available
+        if success and self.event_bus:
+            try:
+                correlation_id = None
+                channel = "voice"
+                confidence = 0.0
+                metadata = {}
+                
+                if plan.steps:
+                    last_step = plan.steps[-1]
+                    correlation_id = last_step.context.correlation_id
+                    channel = last_step.channel or last_step.context.channel or "voice"
+                    confidence = last_step.confidence or 0.0
+                    metadata = last_step.context.metadata
+                
+                if not correlation_id:
+                    correlation_id = str(uuid.uuid4())
+                
+                event = ResponseGeneratedEvent(
+                    response=response.speech,
+                    plugin=response.plugin_used,
+                    confidence=confidence,
+                    timestamp=datetime.now(timezone.utc),
+                    correlation_id=correlation_id,
+                    execution_time_ms=response.execution_time_ms,
+                    channel=channel,
+                    metadata=metadata
+                )
+                await self.event_bus.publish(event)
+                logger.info(f"Published ResponseGeneratedEvent (correlation_id={correlation_id})")
+            except Exception as exc:
+                logger.error(f"Failed to publish ResponseGeneratedEvent: {exc}", exc_info=True)
+                
+        return response
 
 
 

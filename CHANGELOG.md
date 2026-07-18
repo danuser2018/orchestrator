@@ -17,6 +17,19 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.2.0] - 2026-07-18
+
+### Añadido
+- Integración de la librería unificada de mensajería `nova-event-bus` para publicar de forma asíncrona el evento de dominio `ResponseGeneratedEvent` bajo el subject `orchestrator.response.generated`.
+- Nuevo fichero `core/events.py` con la definición del evento tipado `ResponseGeneratedEvent`.
+- Nuevo ADR local `doc/adr/adr-005-adicion-correlation-id-y-channel-userrequest.md` para documentar la extensión del contrato de `UserRequest`.
+- Suite de pruebas en `tests/test_event_publishing.py` para validar el happy path, resiliencia y retrocompatibilidad de la publicación de eventos.
+
+### Cambiado
+- Modificados los modelos `UserRequest` y `PluginContext` en `core/models.py` para admitir los campos opcionales `correlation_id` y `channel` manteniendo la compatibilidad hacia atrás.
+- Modificada la inicialización en `main.py` para conectar/desconectar el `NatsEventBus` en el lifespan del servicio FastAPI y propagarlo al `PlanExecutor`.
+- Actualizada la planificación y ejecución en `core/engine.py` para propagar los datos de correlación y canal, y realizar la publicación asíncrona y resiliente del evento de respuesta generada.
+
 ## [3.1.0] - 2026-07-16
 
 ### Añadido
