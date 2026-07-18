@@ -6,4 +6,4 @@ pytest>=7.4.0
 httpx>=0.25.0
 pytest-asyncio>=0.21.1
 rapidfuzz>=3.3.0
-nova-event-bus @ git+https://github.com/danuser2018/nova-event-bus.git@v1.0.0
+nova-event-bus @ git+https://github.com/danuser2018/nova-event-bus.git@1.0.0
