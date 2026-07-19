@@ -17,6 +17,17 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.3.0] - 2026-07-19
+
+### Añadido
+- Nuevo plugin **Repeat** (`RepeatPlugin`) para permitir al usuario solicitar la repetición de la última respuesta generada, obteniéndola de la API REST del microservicio `context-service`.
+- Cliente REST `ContextServiceClient` en `core/context_service_client.py` con el modelo `LastResponseInfo`.
+- Suite de pruebas unitarias y de integración en `tests/test_repeat_plugin.py` para validar todas las condiciones de borde y fallos del plugin Repeat.
+
+### Cambiado
+- Añadida la variable de configuración `context_service_base_url` en `core/config.py`.
+- Integrada la validación de registro del plugin `repeat` en `tests/test_plugin_registration.py`.
+
 ## [3.2.0] - 2026-07-18
 
 ### Añadido
