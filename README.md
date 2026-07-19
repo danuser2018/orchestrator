@@ -129,6 +129,7 @@ Cada plugin funcional declara:
 | `TimePlugin` | `"time"` | `80` | Lista de 10 frases |
 | `DatePlugin` | `"date"` | `80` | Lista de 10 frases |
 | `WeatherPlugin` | `"weather"` | `80` | Lista de 10 frases |
+| `RepeatPlugin` | `"repeat"` | `70` | Lista de 8 frases |
 | `IdentityPlugin` | `"identity"` | `60` | Lista de 10 frases |
 | `AuthorPlugin` | `"author"` | `60` | Lista de 10 frases |
 | `VersionPlugin` | `"version"` | `60` | Lista de 10 frases |

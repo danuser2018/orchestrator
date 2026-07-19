@@ -17,6 +17,7 @@ def test_successful_plugin_registration(client):
     assert "identity" in ids
     assert "weather" in ids
     assert "fallback" not in ids
+    assert "repeat" in ids
     assert "farewell" in ids
     assert "greeting" in ids
     assert "author" in ids
