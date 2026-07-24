@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 from nova_event_bus import Event, event
 
-@event("orchestrator.response.generated")
+@event("event.interaction.response-generated")
 @dataclass
 class ResponseGeneratedEvent(Event):
     response: str

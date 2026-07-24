@@ -563,7 +563,7 @@ Al arrancar, el Orchestrator ejecuta los siguientes pasos:
 ### Publicación de Eventos del Dominio (ResponseGeneratedEvent)
 
 El Orchestrator se integra con el bus de eventos asíncrono utilizando la librería `nova-event-bus` (conectada al broker NATS mediante la variable `NATS_URL`).
-Cuando el `PlanExecutor` finaliza la ejecución de un plan de plugin de forma exitosa, publica de manera asíncrona un evento de tipo `ResponseGeneratedEvent` bajo el subject `orchestrator.response.generated`.
+Cuando el `PlanExecutor` finaliza la ejecución de un plan de plugin de forma exitosa, publica de manera asíncrona un evento de tipo `ResponseGeneratedEvent` bajo el subject `event.interaction.response-generated`.
 
 El payload del evento incluye:
 - `response` (str): Texto de la respuesta generada para el usuario.
