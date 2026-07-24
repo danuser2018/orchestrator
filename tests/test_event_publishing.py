@@ -176,7 +176,7 @@ async def test_response_generated_event_serialization_integration(client):
             subject = args[0]
             serialized_payload = args[1]
             
-            assert subject == "orchestrator.response.generated"
+            assert subject == "event.interaction.response-generated"
             import json
             payload_data = json.loads(serialized_payload.decode("utf-8"))
             assert payload_data["type"] == "ResponseGeneratedEvent"

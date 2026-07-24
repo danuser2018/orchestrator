@@ -17,6 +17,14 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.4.0] - 2026-07-25
+
+### Cambiado
+
+- Actualizado el decorador `@event` de `ResponseGeneratedEvent` en `core/events.py` adoptando el subject canonizado por ADR-022 (`event.interaction.response-generated`).
+- Actualizadas las aserciones de pruebas unitarias e integración en `tests/test_event_publishing.py`.
+- Actualizada la documentación en `README.md`.
+
 ## [3.3.0] - 2026-07-19
 
 ### Añadido
