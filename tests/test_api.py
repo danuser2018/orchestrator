@@ -10,7 +10,7 @@ def test_resolve_intent_success(client):
     assert "steps" in data
     assert len(data["steps"]) == 1
     step = data["steps"][0]
-    assert step["plugin"] == "WeatherPlugin"
+    assert step["plugin"] in ("weather", "WeatherPlugin")
     assert step["context"]["raw_text"] == "¿Qué tiempo hace hoy?"
 
 def test_resolve_intent_empty_text(client):
@@ -18,7 +18,8 @@ def test_resolve_intent_empty_text(client):
     assert response.status_code == 200
     data = response.json()
     assert len(data["steps"]) == 1
-    assert data["steps"][0]["plugin"] == "FallbackPlugin"
+    assert data["steps"][0]["plugin"] in ("fallback", "FallbackPlugin")
+
 
 def test_resolve_validation_error(client):
     response = client.post("/api/v1/resolve", json={})

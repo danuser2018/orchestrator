@@ -47,17 +47,27 @@ class PluginManager:
                         
                     try:
                         plugin_instance.initialize()
-                        # Use the property `name` if defined correctly
+                        self.plugins[plugin_instance.id] = plugin_instance
                         self.plugins[plugin_instance.name] = plugin_instance
-                        logger.info(f"Loaded plugin: {plugin_instance.name}")
+                        logger.info(f"Loaded plugin: {plugin_instance.name} (id: {plugin_instance.id})")
                     except Exception as e:
                         logger.error(f"Failed to initialize plugin {name}: {e}", exc_info=True)
 
     def get_active_plugins(self) -> List[Plugin]:
-        return list(self.plugins.values())
+        unique_plugins = {}
+        for plugin in self.plugins.values():
+            unique_plugins[plugin.id] = plugin
+        return list(unique_plugins.values())
 
-    def get_plugin(self, name: str) -> Plugin | None:
-        return self.plugins.get(name)
+    def get_plugin(self, identifier: str) -> Plugin | None:
+        if identifier in self.plugins:
+            return self.plugins[identifier]
+        for plugin in self.plugins.values():
+            if plugin.id.lower() == identifier.lower() or plugin.name.lower() == identifier.lower():
+                return plugin
+        return None
+
+
 
     def teardown(self):
         for name, plugin in self.plugins.items():
