@@ -48,9 +48,9 @@ class ExecutionPlanner:
         
         # Guard short-circuit if user text is empty
         if not normalized_text:
-            logger.info("Empty user query. Defaulting to FallbackPlugin.")
+            logger.info("Empty user query. Defaulting to fallback plugin.")
             step = ExecutionPlanStep(
-                plugin="FallbackPlugin",
+                plugin="fallback",
                 confidence=0.0,
                 parameters={},
                 channel=channel,
@@ -94,9 +94,9 @@ class ExecutionPlanner:
             logger.debug(f"  [{idx + 1}] Plugin: {p.name} (id: {p.id}) | Score: {entry['score']:.2f} | Priority: {entry['priority']} | Winning Phrase: '{entry['best_phrase']}'")
 
         if not candidate_scores:
-            logger.info("No active plugins found. Using FallbackPlugin.")
+            logger.info("No active plugins found. Using fallback plugin.")
             step = ExecutionPlanStep(
-                plugin="FallbackPlugin",
+                plugin="fallback",
                 confidence=0.0,
                 parameters={},
                 channel=channel,
@@ -109,9 +109,9 @@ class ExecutionPlanner:
         
         # Check minimum similarity threshold
         if first["score"] < self.similarity_threshold:
-            logger.info(f"Top candidate {first['plugin'].name} score {first['score']:.2f} below threshold {self.similarity_threshold}. Using FallbackPlugin.")
+            logger.info(f"Top candidate {first['plugin'].name} score {first['score']:.2f} below threshold {self.similarity_threshold}. Using fallback plugin.")
             step = ExecutionPlanStep(
-                plugin="FallbackPlugin",
+                plugin="fallback",
                 confidence=first["score"],
                 parameters={},
                 channel=channel,
@@ -141,13 +141,13 @@ class ExecutionPlanner:
                     confidence = second["score"]
                 else:
                     logger.warning(
-                        f"Persistent tie between {first['plugin'].name} and {second['plugin'].name}. Both have priority {first['priority']}. Defaulting to FallbackPlugin."
+                        f"Persistent tie between {first['plugin'].name} and {second['plugin'].name}. Both have priority {first['priority']}. Defaulting to fallback plugin."
                     )
-                    selected_plugin = self.plugin_manager.get_plugin("FallbackPlugin")
+                    selected_plugin = self.plugin_manager.get_plugin("fallback")
                     confidence = 0.0
                 
                 step = ExecutionPlanStep(
-                    plugin=selected_plugin.name if selected_plugin else "FallbackPlugin",
+                    plugin=selected_plugin.id if selected_plugin else "fallback",
                     confidence=confidence,
                     parameters={},
                     channel=channel,
@@ -156,9 +156,9 @@ class ExecutionPlanner:
                 )
                 return ExecutionPlan(steps=[step])
 
-        logger.info(f"Selected plugin: {first['plugin'].name} with score: {first['score']:.2f} and winning phrase: '{first['best_phrase']}'")
+        logger.info(f"Selected plugin: {first['plugin'].name} (id: {first['plugin'].id}) with score: {first['score']:.2f} and winning phrase: '{first['best_phrase']}'")
         step = ExecutionPlanStep(
-            plugin=first["plugin"].name,
+            plugin=first["plugin"].id,
             confidence=first["score"],
             parameters={},
             channel=channel,
@@ -166,6 +166,7 @@ class ExecutionPlanner:
             security={}
         )
         return ExecutionPlan(steps=[step])
+
 
 class PlanExecutor:
     def __init__(self, plugin_manager: PluginManager, event_bus: Optional[EventBusInterface] = None):

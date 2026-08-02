@@ -17,7 +17,15 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.5.0] - 2026-08-02
+
+### Cambiado
+
+- Unificado el contrato de `ExecutionPlan`: el método `resolve` en `ExecutionPlanner` (`core/engine.py`) devuelve ahora el `id` del plugin en la propiedad `step.plugin` (ej. `"weather"`, `"greeting"`, `"fallback"`) en lugar del nombre de la clase (`"WeatherPlugin"`).
+- Simplificada la búsqueda de plugins en `PluginManager` (`core/plugin_manager.py`): registra los plugins bajo su `id` y `name`, permitiendo la resolución inmediata en O(1) de cualquier plan generado por voz o ejecutado por shortcut desde la CLI.
+
 ## [3.4.0] - 2026-07-25
+
 
 ### Cambiado
 

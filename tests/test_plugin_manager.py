@@ -15,6 +15,12 @@ def test_plugin_manager_loads_plugins():
     assert weather_plugin.priority == 80
     assert len(weather_plugin.examples) == 10
 
+    # Verify lookup by plugin ID ("weather")
+    weather_by_id = manager.get_plugin("weather")
+    assert weather_by_id is not None
+    assert weather_by_id.name == "WeatherPlugin"
+
+
 def test_plugin_manager_fallback_plugin():
     manager = PluginManager(plugins_dir="plugins")
     manager.discover_and_load()
