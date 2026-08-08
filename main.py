@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="Local Voice Assistant Orchestrator",
-    version="3.6.0",
+    version="3.8.0",
     lifespan=lifespan
 )
 

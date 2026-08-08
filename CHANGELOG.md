@@ -17,6 +17,17 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.8.0] - 2026-08-09
+
+### Añadido
+- Implementación del plugin `VolumeSetPlugin` (identificador canónico `volume-set`, `priority = 60`) en `plugins/volume/main.py` para el ajuste de volumen absoluto en el rango `[0, 100]`.
+- Método asíncrono `set_volume(self, volume: int) -> AudioState` en `HostServiceClient` (`core/host_service_client.py`) para enviar peticiones HTTP `POST /v1/audio/volume/set` hacia `host-service`.
+- Pruebas unitarias completas en `tests/test_volume_set_plugin.py` y pruebas de integración con `ExecutionPlanner` en `tests/test_volume_set_integration.py`.
+- Aserción de la capacidad `volume-set` en `tests/test_plugin_registration.py`.
+
+### Cambiado
+- Incrementada la versión de la aplicación a `3.8.0` en `main.py`.
+
 ## [3.7.0] - 2026-08-09
 
 ### Añadido

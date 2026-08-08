@@ -33,6 +33,7 @@ def test_successful_plugin_registration(client):
     assert "volume-status" in ids
     assert "mute" in ids
     assert "unmute" in ids
+    assert "volume-set" in ids
     assert "today_holiday" in ids
     assert "next_holiday" in ids
     assert "days_until_next_holiday" in ids

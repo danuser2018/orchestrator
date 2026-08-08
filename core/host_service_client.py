@@ -62,3 +62,14 @@ class HostServiceClient:
             data = response.json()
             logger.info(f"Response received: {data}")
             return AudioState(**data)
+
+    async def set_volume(self, volume: int) -> AudioState:
+        url = f"{self.base_url.rstrip('/')}/v1/audio/volume/set"
+        logger.info(f"Consuming URL: {url} with volume: {volume}")
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(url, json={"volume": volume})
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Response received: {data}")
+            return AudioState(**data)
+
