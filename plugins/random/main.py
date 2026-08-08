@@ -3,6 +3,7 @@ from typing import List
 from core.models import PluginContext, PluginResult
 from plugins.base import Plugin
 from core.random_service import RandomService
+from core.parameter_resolution.models import ParameterDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +140,7 @@ class RandomNumberPlugin(Plugin):
 
     @property
     def description(self) -> str:
-        return "Genera un número aleatorio entre 1 y 99"
+        return "Genera un número aleatorio"
 
     @property
     def id(self) -> str:
@@ -148,6 +149,17 @@ class RandomNumberPlugin(Plugin):
     @property
     def priority(self) -> int:
         return 60
+
+    @property
+    def parameters(self) -> List[ParameterDefinition]:
+        return [
+            ParameterDefinition(
+                name="max",
+                type="Integer",
+                required=False,
+                default=100
+            )
+        ]
 
     @property
     def examples(self) -> List[str]:
@@ -171,14 +183,19 @@ class RandomNumberPlugin(Plugin):
     async def execute(self, context: PluginContext) -> PluginResult:
         logger.info("Starting execution of RandomNumberPlugin")
         try:
-            result = self.random_service.random_int(1, 99)
+            max_value = context.parameters.get("max", 100) if context.parameters else 100
+            if not isinstance(max_value, int) or max_value < 1:
+                max_value = 100
+
+            result = self.random_service.random_int(1, max_value)
             # Response formatting conforming to Tone Guide (direct data format: '{value}.')
             speech = f"{result}."
             return PluginResult(
                 success=True,
                 speech=speech,
                 data={
-                    "result": result
+                    "result": result,
+                    "max": max_value
                 }
             )
         except Exception as e:
@@ -187,3 +204,4 @@ class RandomNumberPlugin(Plugin):
                 success=False,
                 speech="No he podido completar la operación."
             )
+

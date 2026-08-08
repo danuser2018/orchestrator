@@ -17,6 +17,18 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.7.0] - 2026-08-09
+
+### Añadido
+- Resolver especializado `IntegerResolver` (`core/parameter_resolution/resolvers/integer.py`) para el tipo lógico `"Integer"`, con soporte para extracción léxico-sintáctica en español y números en dígitos.
+- Atributo `parameters: Dict[str, Any] = {}` en `PluginContext` (`core/models.py`) para propagar parámetros resueltos a los plugins.
+- Pruebas unitarias e integración en `tests/test_integer_resolver.py`, `tests/test_random_number_plugin_parameters.py` y `tests/test_execution_planner_integer.py`.
+
+### Cambiado
+- Registro automático de `IntegerResolver` en `ParameterResolverRegistry` durante el ciclo `lifespan` en `main.py`.
+- `RandomNumberPlugin` (`plugins/random/main.py`) para declarar el parámetro `max: Integer` (default `100`) y consumir `context.parameters["max"]`.
+- `ExecutionPlanner.resolve` (`core/engine.py`) asigna `context.parameters = resolved_params`.
+
 ## [3.6.0] - 2026-08-08
 
 ### Añadido

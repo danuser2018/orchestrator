@@ -15,6 +15,7 @@ class PluginContext(BaseModel):
     normalized_text: str
     correlation_id: Optional[str] = None
     channel: Optional[str] = "voice"
+    parameters: Dict[str, Any] = {}
     metadata: Dict[str, Any] = {}
 
 class ExecutionPlanStep(BaseModel):
