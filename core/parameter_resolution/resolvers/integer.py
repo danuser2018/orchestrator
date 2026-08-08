@@ -1,6 +1,7 @@
 import re
 from typing import Optional
 from core.models import PluginContext
+from core.logger import logger
 from core.parameter_resolution.base import BaseParameterResolver
 from core.parameter_resolution.models import (
     ParameterDefinition,
@@ -47,6 +48,10 @@ class IntegerResolver(BaseParameterResolver):
         digit_match = re.search(r'\b\d+\b', text)
         if digit_match:
             val = int(digit_match.group())
+            logger.debug(
+                f"IntegerResolver: digit match found for '{definition.name}' "
+                f"→ {val} (pattern '{digit_match.group()}' in '{text}')"
+            )
             return ParameterResolutionResult(
                 parameter_name=definition.name,
                 value=val,
@@ -71,6 +76,10 @@ class IntegerResolver(BaseParameterResolver):
                 next_word_clean = re.sub(r'[^\w]', '', words[i + 1])
                 if next_word_clean == "mil":
                     val = SPANISH_CARDINALS[clean_word] * 1000
+                    logger.debug(
+                        f"IntegerResolver: thousands compound match for '{definition.name}' "
+                        f"→ {val} ('{clean_word} mil' in '{text}')"
+                    )
                     return ParameterResolutionResult(
                         parameter_name=definition.name,
                         value=val,
@@ -88,6 +97,10 @@ class IntegerResolver(BaseParameterResolver):
                     units_clean = re.sub(r'[^\w]', '', words[i + 3])
                     if tens_clean in SPANISH_CARDINALS and units_clean in SPANISH_CARDINALS:
                         val = hundreds_val + SPANISH_CARDINALS[tens_clean] + SPANISH_CARDINALS[units_clean]
+                        logger.debug(
+                            f"IntegerResolver: hundreds+tens+units compound match for '{definition.name}' "
+                            f"→ {val} ('{clean_word} {tens_clean} y {units_clean}' in '{text}')"
+                        )
                         return ParameterResolutionResult(
                             parameter_name=definition.name,
                             value=val,
@@ -97,6 +110,10 @@ class IntegerResolver(BaseParameterResolver):
                 # Hundreds + single cardinal
                 if next_word_clean in SPANISH_CARDINALS:
                     val = hundreds_val + SPANISH_CARDINALS[next_word_clean]
+                    logger.debug(
+                        f"IntegerResolver: hundreds+cardinal compound match for '{definition.name}' "
+                        f"→ {val} ('{clean_word} {next_word_clean}' in '{text}')"
+                    )
                     return ParameterResolutionResult(
                         parameter_name=definition.name,
                         value=val,
@@ -109,6 +126,10 @@ class IntegerResolver(BaseParameterResolver):
                 units_word = re.sub(r'[^\w]', '', words[i + 2])
                 if tens_word in SPANISH_CARDINALS and units_word in SPANISH_CARDINALS:
                     val = SPANISH_CARDINALS[tens_word] + SPANISH_CARDINALS[units_word]
+                    logger.debug(
+                        f"IntegerResolver: tens+units compound match for '{definition.name}' "
+                        f"→ {val} ('{tens_word} y {units_word}' in '{text}')"
+                    )
                     return ParameterResolutionResult(
                         parameter_name=definition.name,
                         value=val,
@@ -117,6 +138,10 @@ class IntegerResolver(BaseParameterResolver):
 
             if clean_word in SPANISH_CARDINALS:
                 val = SPANISH_CARDINALS[clean_word]
+                logger.debug(
+                    f"IntegerResolver: cardinal match for '{definition.name}' "
+                    f"→ {val} (token '{clean_word}' in '{text}')"
+                )
                 return ParameterResolutionResult(
                     parameter_name=definition.name,
                     value=val,
@@ -124,6 +149,9 @@ class IntegerResolver(BaseParameterResolver):
                 )
 
         # 3. No integer found
+        logger.debug(
+            f"IntegerResolver: no integer found for '{definition.name}' in text '{text}'"
+        )
         return ParameterResolutionResult(
             parameter_name=definition.name,
             value=None,
