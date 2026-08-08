@@ -138,7 +138,7 @@ async def test_random_number_plugin_success():
         
         assert result.success is True
         assert result.speech == "37."
-        assert result.data == {"result": 37}
+        assert result.data == {"result": 37, "max": 100}
 
 @pytest.mark.asyncio
 async def test_random_number_plugin_error():

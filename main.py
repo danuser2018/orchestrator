@@ -31,7 +31,9 @@ async def lifespan(app: FastAPI):
     app.state.event_bus = event_bus
     
     from core.parameter_resolution import ParameterResolverRegistry, ParameterResolverEngine
+    from core.parameter_resolution.resolvers import IntegerResolver
     parameter_registry = ParameterResolverRegistry()
+    parameter_registry.register(IntegerResolver())
     parameter_engine = ParameterResolverEngine(parameter_registry)
     app.state.parameter_registry = parameter_registry
     app.state.parameter_engine = parameter_engine
@@ -86,7 +88,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="Local Voice Assistant Orchestrator",
-    version="1.0.0",
+    version="3.6.0",
     lifespan=lifespan
 )
 

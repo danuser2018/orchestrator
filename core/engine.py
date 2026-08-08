@@ -156,6 +156,7 @@ class ExecutionPlanner:
                     if plugin_params:
                         resolved_params, _ = await self.parameter_engine.resolve_parameters(context, plugin_params)
                 
+                context.parameters = resolved_params
                 step = ExecutionPlanStep(
                     plugin=selected_plugin.id if selected_plugin else "fallback",
                     confidence=confidence,
@@ -174,6 +175,7 @@ class ExecutionPlanner:
             if plugin_params:
                 resolved_params, _ = await self.parameter_engine.resolve_parameters(context, plugin_params)
 
+        context.parameters = resolved_params
         step = ExecutionPlanStep(
             plugin=selected_plugin.id,
             confidence=first["score"],
