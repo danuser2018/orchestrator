@@ -2,6 +2,7 @@ import logging
 from typing import List
 import httpx
 from core.models import PluginContext, PluginResult
+from core.parameter_resolution.models import ParameterDefinition
 from plugins.base import Plugin
 from core.host_service_client import HostServiceClient
 
@@ -305,3 +306,86 @@ class UnmutePlugin(Plugin):
         except Exception as e:
             logger.error(f"Error executing UnmutePlugin: {e}", exc_info=True)
             return PluginResult(success=False, speech="No he podido completar la operación.")
+
+
+class VolumeSetPlugin(Plugin):
+    def __init__(self):
+        super().__init__()
+        self.client = None
+
+    @property
+    def name(self) -> str:
+        return "VolumeSetPlugin"
+
+    @property
+    def description(self) -> str:
+        return "Establece el volumen de audio del sistema a un valor absoluto entre 0 y 100"
+
+    @property
+    def id(self) -> str:
+        return "volume-set"
+
+    @property
+    def priority(self) -> int:
+        return 60
+
+    @property
+    def parameters(self) -> List[ParameterDefinition]:
+        return [
+            ParameterDefinition(
+                name="volume",
+                type="Integer",
+                required=True
+            )
+        ]
+
+    @property
+    def examples(self) -> List[str]:
+        return [
+            "Pon el volumen al 50",
+            "Establece el volumen en 30",
+            "Fija el volumen al 75",
+            "Pon el volumen al 100",
+            "Volumen al 20",
+            "Pon el volumen a cero",
+            "Ajusta el volumen al 80 por ciento",
+            "Pon el volumen en cincuenta",
+            "Pon el volumen al 10",
+            "Fijar el volumen a 40"
+        ]
+
+    def initialize(self) -> None:
+        logger.info("Initializing VolumeSetPlugin")
+        self.client = HostServiceClient()
+
+    async def execute(self, context: PluginContext) -> PluginResult:
+        logger.info("Starting execution of VolumeSetPlugin")
+        raw_val = context.parameters.get("volume") if context.parameters else None
+
+        if raw_val is None:
+            return PluginResult(
+                success=False,
+                speech="Indica un nivel de volumen."
+            )
+
+        if not isinstance(raw_val, int) or isinstance(raw_val, bool) or raw_val < 0 or raw_val > 100:
+            return PluginResult(
+                success=False,
+                speech="Indica un volumen entre 0 y 100."
+            )
+
+        try:
+            result = await self.client.set_volume(raw_val)
+            speech = f"Volumen al {result.volume} por ciento."
+            return PluginResult(
+                success=True,
+                speech=speech,
+                data=result.model_dump()
+            )
+        except (httpx.ConnectError, httpx.TimeoutException) as conn_err:
+            logger.error(f"Connection error connecting to host-service: {conn_err}")
+            return PluginResult(success=False, speech="Servicio no disponible.")
+        except Exception as e:
+            logger.error(f"Error executing VolumeSetPlugin: {e}", exc_info=True)
+            return PluginResult(success=False, speech="No he podido completar la operación.")
+

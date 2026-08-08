@@ -143,6 +143,7 @@ Cada plugin funcional declara:
 | `VolumeUpPlugin` | `"volume-up"` | `60` | Lista de 10 frases |
 | `VolumeDownPlugin` | `"volume-down"` | `60` | Lista de 10 frases |
 | `VolumeStatusPlugin`| `"volume-status"` | `60` | Lista de 10 frases |
+| `VolumeSetPlugin` | `"volume-set"` | `60` | Lista de 10 frases |
 | `MutePlugin` | `"mute"` | `60` | Lista de 10 frases |
 | `UnmutePlugin` | `"unmute"` | `60` | Lista de 10 frases |
 | `TodayHolidayPlugin` | `"today_holiday"` | `60` | Lista de 10 frases |
@@ -355,8 +356,8 @@ orchestrator/
 │   │   └── requirements.txt # Dependencias opcionales
 │   ├── random/          # Plugins aleatorios (moneda, dado, número)
 │   │   └── main.py      # Clases CoinPlugin, DicePlugin, RandomNumberPlugin
-│   ├── volume/          # Plugins de volumen (subir, bajar, estado, silenciar, activar sonido)
-│   │   └── main.py      # Clases VolumeUpPlugin, VolumeDownPlugin, VolumeStatusPlugin, MutePlugin, UnmutePlugin
+│   ├── volume/          # Plugins de volumen (subir, bajar, estado, fijación, silenciar, activar sonido)
+│   │   └── main.py      # Clases VolumeUpPlugin, VolumeDownPlugin, VolumeStatusPlugin, VolumeSetPlugin, MutePlugin, UnmutePlugin
 │   ├── weather/         # Plugin del tiempo
 │   │   └── main.py      # Clase del plugin
 │   └── holidays/        # Plugins de festivos (hoy, siguiente, días restantes, año completo)
