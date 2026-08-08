@@ -23,11 +23,18 @@ Los cambios se agrupan en las siguientes categorías:
 - Resolver especializado `IntegerResolver` (`core/parameter_resolution/resolvers/integer.py`) para el tipo lógico `"Integer"`, con soporte para extracción léxico-sintáctica en español y números en dígitos.
 - Atributo `parameters: Dict[str, Any] = {}` en `PluginContext` (`core/models.py`) para propagar parámetros resueltos a los plugins.
 - Pruebas unitarias e integración en `tests/test_integer_resolver.py`, `tests/test_random_number_plugin_parameters.py` y `tests/test_execution_planner_integer.py`.
+- Logging estructurado en `ParameterResolverEngine` (`core/parameter_resolution/engine.py`): trazas `INFO` para parámetros resueltos y uso de valor por defecto, `WARNING` para tipos sin resolver registrado, y `ERROR` con `exc_info` para excepciones durante la resolución.
+- Logging `DEBUG` en `IntegerResolver` (`core/parameter_resolution/resolvers/integer.py`): traza el camino de extracción exacto (dígitos, cardinals simples, compuestos de decenas, centenas o miles) e indica el valor y el fragmento de texto que lo originó.
+- Prueba unitaria `test_resolve_ciento_isolated_fails` en `tests/test_integer_resolver.py` para verificar que `"ciento"` aislado retorna `UNRESOLVED_OPTIONAL`.
 
 ### Cambiado
 - Registro automático de `IntegerResolver` en `ParameterResolverRegistry` durante el ciclo `lifespan` en `main.py`.
 - `RandomNumberPlugin` (`plugins/random/main.py`) para declarar el parámetro `max: Integer` (default `100`) y consumir `context.parameters["max"]`.
 - `ExecutionPlanner.resolve` (`core/engine.py`) asigna `context.parameters = resolved_params`.
+
+### Corregido
+- Eliminado `"ciento"` del diccionario `SPANISH_CARDINALS` en `IntegerResolver` (`core/parameter_resolution/resolvers/integer.py`): en español `"ciento"` solo es válido como prefijo de composición (ej. `"ciento veinte"`), nunca como cardinal aislado. Su presencia causaba falsos positivos en textos como `"Dame ciento opciones"`.
+- Sincronizado el campo `version` en la instanciación de `FastAPI` en `main.py` con la versión real del servicio (`3.6.0` → ahora refleja `3.7.0` tras el bump correspondiente).
 
 ## [3.6.0] - 2026-08-08
 
