@@ -17,7 +17,21 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.6.0] - 2026-08-08
+
+### Añadido
+
+- Nueva infraestructura contractual e interfaces desacopladas para la resolución de parámetros (`core/parameter_resolution/`):
+  - Modelos de datos `ParameterDefinition`, `ParameterResolutionStatus` y `ParameterResolutionResult`.
+  - Clase abstracta `BaseParameterResolver`.
+  - Registro centralizado por tipo lógico `ParameterResolverRegistry`.
+  - Motor de coordinación `ParameterResolverEngine`.
+  - Propiedad `parameters` en la abstracción `Plugin` (`plugins/base.py`) con lista vacía por defecto para retrocompatibilidad total.
+- Inyección de `ParameterResolverRegistry` y `ParameterResolverEngine` en `main.py` (`app.state`) e integración en `ExecutionPlanner` para resolver parámetros declarados durante la generación del `ExecutionPlan`.
+- Pruebas unitarias e integración en `tests/` (`test_parameter_models.py`, `test_parameter_registry.py`, `test_parameter_engine.py`, `test_execution_planner_parameters.py`, `test_plugin_parameters.py`).
+
 ## [3.5.0] - 2026-08-02
+
 
 ### Cambiado
 

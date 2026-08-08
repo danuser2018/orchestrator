@@ -26,7 +26,9 @@ La arquitectura se divide en los siguientes componentes principales:
 
 - **API Layer**: Construida sobre FastAPI, expone los endpoints HTTP necesarios para interactuar con el Orchestrator.
 - **ExecutionPlanner**: Motor de planificación rápido que analiza la entrada de texto y calcula la similitud semántica ponderada frente a las frases de ejemplo de cada plugin cargado para construir un plan de ejecución (`ExecutionPlan`).
+- **ParameterResolverEngine / Registry**: Capa contractual desacoplada (`core/parameter_resolution/`) que coordina la extracción y resolución de parámetros declarados por los plugins según su tipo lógico, integrada en la fase de planificación del `ExecutionPlanner`.
 - **Plugin Manager**: Encargado de descubrir, cargar dinámicamente, registrar y mantener en memoria las instancias de los plugins disponibles. Tras cargar todos los plugins, se asiste el proceso de recopilación para la posterior publicación de las capacidades en `system-service`.
+
 - **PlanExecutor**: Transforma un plan de ejecución (`ExecutionPlan`) en una serie de llamadas secuenciales a los plugins indicados y emite el resultado estructurado (`AssistantResponse`) que devolverá la API al servicio consumidor.
 - **Configuration**: Gestor centralizado para la configuración del Orchestrator y de cada plugin, usando variables de entorno o archivos `.env`.
 - **Logging**: Sistema unificado de observabilidad para trazar el flujo completo de la petición, esencial para depurar la selección de plugins y la ejecución.

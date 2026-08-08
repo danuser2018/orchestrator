@@ -30,8 +30,14 @@ async def lifespan(app: FastAPI):
     
     app.state.event_bus = event_bus
     
+    from core.parameter_resolution import ParameterResolverRegistry, ParameterResolverEngine
+    parameter_registry = ParameterResolverRegistry()
+    parameter_engine = ParameterResolverEngine(parameter_registry)
+    app.state.parameter_registry = parameter_registry
+    app.state.parameter_engine = parameter_engine
+    
     similarity_engine = RapidFuzzSimilarityEngine()
-    app.state.planner = ExecutionPlanner(plugin_manager, similarity_engine)
+    app.state.planner = ExecutionPlanner(plugin_manager, similarity_engine, parameter_engine=parameter_engine)
     app.state.executor = PlanExecutor(plugin_manager, event_bus=event_bus)
 
     

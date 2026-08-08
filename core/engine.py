@@ -12,6 +12,8 @@ from .logger import logger
 from .config import settings
 from .events import ResponseGeneratedEvent
 
+from .parameter_resolution import ParameterResolverEngine
+
 class PluginNotFoundError(Exception):
     pass
 
@@ -21,12 +23,14 @@ class ExecutionPlanner:
         plugin_manager: PluginManager, 
         similarity_engine: SimilarityEngine,
         similarity_threshold: float = settings.similarity_threshold,
-        tie_breaker_threshold: float = settings.tie_breaker_threshold
+        tie_breaker_threshold: float = settings.tie_breaker_threshold,
+        parameter_engine: Optional[ParameterResolverEngine] = None
     ):
         self.plugin_manager = plugin_manager
         self.similarity_engine = similarity_engine
         self.similarity_threshold = similarity_threshold
         self.tie_breaker_threshold = tie_breaker_threshold
+        self.parameter_engine = parameter_engine
 
     def normalize_text(self, text: str) -> str:
         text = text.lower()
@@ -146,10 +150,16 @@ class ExecutionPlanner:
                     selected_plugin = self.plugin_manager.get_plugin("fallback")
                     confidence = 0.0
                 
+                resolved_params = {}
+                if self.parameter_engine and selected_plugin and selected_plugin.id != "fallback":
+                    plugin_params = getattr(selected_plugin, "parameters", [])
+                    if plugin_params:
+                        resolved_params, _ = await self.parameter_engine.resolve_parameters(context, plugin_params)
+                
                 step = ExecutionPlanStep(
                     plugin=selected_plugin.id if selected_plugin else "fallback",
                     confidence=confidence,
-                    parameters={},
+                    parameters=resolved_params,
                     channel=channel,
                     context=context,
                     security={}
@@ -157,15 +167,23 @@ class ExecutionPlanner:
                 return ExecutionPlan(steps=[step])
 
         logger.info(f"Selected plugin: {first['plugin'].name} (id: {first['plugin'].id}) with score: {first['score']:.2f} and winning phrase: '{first['best_phrase']}'")
+        selected_plugin = first["plugin"]
+        resolved_params = {}
+        if self.parameter_engine and selected_plugin:
+            plugin_params = getattr(selected_plugin, "parameters", [])
+            if plugin_params:
+                resolved_params, _ = await self.parameter_engine.resolve_parameters(context, plugin_params)
+
         step = ExecutionPlanStep(
-            plugin=first["plugin"].id,
+            plugin=selected_plugin.id,
             confidence=first["score"],
-            parameters={},
+            parameters=resolved_params,
             channel=channel,
             context=context,
             security={}
         )
         return ExecutionPlan(steps=[step])
+
 
 
 class PlanExecutor:
