@@ -35,6 +35,10 @@ class CapabilitiesPlugin(Plugin):
         return 60
 
     @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
+
+    @property
     def examples(self) -> List[str]:
         return [
             "¿Qué puedes hacer?",

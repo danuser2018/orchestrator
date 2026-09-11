@@ -13,6 +13,7 @@ from .config import settings
 from .events import ResponseGeneratedEvent
 
 from .parameter_resolution import ParameterResolverEngine
+from .token_verifier import verify_step_token, TokenVerificationError, UnauthorizedActionError
 
 class PluginNotFoundError(Exception):
     pass
@@ -202,6 +203,23 @@ class PlanExecutor:
         success = True
         
         for step in plan.steps:
+            # Security Authorization Token Enforcement
+            token = None
+            if isinstance(step.security, dict):
+                token = step.security.get("authorization_token") or step.security.get("token")
+            elif hasattr(step.security, "authorization_token"):
+                token = getattr(step.security, "authorization_token")
+
+            try:
+                verify_step_token(
+                    token=token,
+                    expected_correlation_id=step.context.correlation_id,
+                    expected_action_id=step.plugin
+                )
+            except TokenVerificationError as e:
+                logger.error(f"Authorization token validation failed for step '{step.plugin}': {e}")
+                raise UnauthorizedActionError(f"Authorization token validation failed for step '{step.plugin}': {e}")
+
             plugin = self.plugin_manager.get_plugin(step.plugin)
             if not plugin:
                 logger.error(f"Plugin {step.plugin} not found in execution plan.")

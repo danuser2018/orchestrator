@@ -17,6 +17,25 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.9.0] - 2026-08-30
+
+### Añadido
+- Integración de seguridad User → Service con **Security Service** (`security-service`):
+  - Nuevo cliente HTTP `SecurityClient` (`core/security_client.py`) para registrar las acciones y políticas de riesgo de los plugins en `POST /v1/security/actions/register`.
+  - Módulo de verificación de tokens criptográficos `token_verifier.py` (`core/token_verifier.py`) con validación de firma HMAC-SHA256 (JWT/HS256), expiración (`expires_at`), y correspondencia estricta de `execution_id` (`correlation_id`) y `action_id` (`plugin`).
+  - Clases de excepción especializadas `TokenVerificationError` y `UnauthorizedActionError`.
+  - Manejador de excepciones `unauthorized_action_exception_handler` en `main.py` para devolver HTTP 403 Forbidden con código `"UNAUTHORIZED_ACTION"` ante cualquier token ausente, expirado o manipulado.
+  - Variables de configuración `security_service_base_url` (por defecto `http://security-service:8000`) y `security_hmac_secret` en `core/config.py`.
+  - Propiedad `risk_policy` en la interfaz base `Plugin` (`plugins/base.py`) con política fija `low` por defecto.
+  - Asignación explícita de `risk_policy = {"policy": "fixed", "value": "medium"}` en plugins con impacto en el sistema o efectos secundarios: `VolumeUpPlugin`, `VolumeDownPlugin`, `VolumeSetPlugin`, `MutePlugin`, `UnmutePlugin`, `CapabilitiesPlugin` y `HolidaysOfYearPlugin`.
+  - Dependencia `PyJWT>=2.8.0` en `requirements.txt` para la decodificación y verificación de tokens criptográficos de autorización.
+  - Suite de pruebas de cumplimiento de seguridad en `tests/test_token_enforcement.py` (validación de tokens válidos, manipulados, expirados y mismatch de IDs).
+
+### Cambiado
+- En `main.py` (ciclo `lifespan`), registro automático de las acciones y políticas de riesgo de todos los plugins activos en `security-service` durante el arranque.
+- En `PlanExecutor` (`core/engine.py`), enforcement estricto de autorización previa a la ejecución: cada paso de `ExecutionPlan` debe contener un `authorization_token` válido en `step.security` antes de invocar `plugin.execute()`.
+- Incrementada la versión de la aplicación a `3.9.0` en `main.py`.
+
 ## [3.8.0] - 2026-08-09
 
 ### Añadido

@@ -36,6 +36,11 @@ class Plugin(ABC):
         """Collection of parameters declared by the plugin. Default is empty list."""
         return []
 
+    @property
+    def risk_policy(self) -> dict:
+        """Default risk policy for the plugin action. Fixed low risk."""
+        return {"policy": "fixed", "value": "low"}
+
 
     def initialize(self) -> None:
         pass

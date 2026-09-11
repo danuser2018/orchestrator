@@ -71,6 +71,24 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.error(f"Unexpected error publishing capabilities to System Service: {exc}", exc_info=True)
         
+    # Publish security actions to Security Service
+    from core.security_client import SecurityClient
+    sec_client = SecurityClient()
+    for plugin in plugins:
+        if plugin.id == "fallback":
+            continue
+        actions = getattr(plugin, "actions", [
+            {
+                "id": plugin.id,
+                "risk": getattr(plugin, "risk_policy", {"policy": "fixed", "value": "low"})
+            }
+        ])
+        try:
+            await sec_client.register_actions(plugin.id, actions)
+            logger.info(f"Registered security actions for plugin {plugin.id}")
+        except Exception as exc:
+            logger.warning(f"Error registering security actions for plugin {plugin.id}: {exc}")
+
     logger.info("Orchestrator initialized and ready.")
     
     yield
@@ -88,7 +106,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="Local Voice Assistant Orchestrator",
-    version="3.8.0",
+    version="3.9.0",
     lifespan=lifespan
 )
 
@@ -102,6 +120,19 @@ async def validation_exception_handler(request, exc: RequestValidationError):
             "error": "ValidationError",
             "message": message,
             "status": 422
+        }
+    )
+
+from core.token_verifier import UnauthorizedActionError
+
+@app.exception_handler(UnauthorizedActionError)
+async def unauthorized_action_exception_handler(request, exc: UnauthorizedActionError):
+    return JSONResponse(
+        status_code=403,
+        content={
+            "error": "UNAUTHORIZED_ACTION",
+            "message": str(exc),
+            "status": 403
         }
     )
 

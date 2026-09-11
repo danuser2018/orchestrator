@@ -274,6 +274,10 @@ class HolidaysOfYearPlugin(Plugin):
         return 60
 
     @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
+
+    @property
     def examples(self) -> List[str]:
         return [
             "¿Qué festivos hay este año?",
