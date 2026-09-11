@@ -28,6 +28,7 @@ Los cambios se agrupan en las siguientes categorías:
   - Variables de configuración `security_service_base_url` (por defecto `http://security-service:8000`) y `security_hmac_secret` en `core/config.py`.
   - Propiedad `risk_policy` en la interfaz base `Plugin` (`plugins/base.py`) con política fija `low` por defecto.
   - Asignación explícita de `risk_policy = {"policy": "fixed", "value": "medium"}` en plugins con impacto en el sistema o efectos secundarios: `VolumeUpPlugin`, `VolumeDownPlugin`, `VolumeSetPlugin`, `MutePlugin`, `UnmutePlugin`, `CapabilitiesPlugin` y `HolidaysOfYearPlugin`.
+  - Dependencia `PyJWT>=2.8.0` en `requirements.txt` para la decodificación y verificación de tokens criptográficos de autorización.
   - Suite de pruebas de cumplimiento de seguridad en `tests/test_token_enforcement.py` (validación de tokens válidos, manipulados, expirados y mismatch de IDs).
 
 ### Cambiado
