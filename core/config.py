@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     calendar_service_base_url: str = "http://calendar-service:8000"
     host_service_base_url: str = "http://host.docker.internal:8007"
     context_service_base_url: str = "http://context-service:8000"
+    security_service_base_url: str = "http://security-service:8000"
+    security_hmac_secret: str = "dev-secret-key-change-in-prod"
 
     # Similarity engine parameters
     similarity_threshold: float = 60.0

@@ -30,6 +30,10 @@ class VolumeUpPlugin(Plugin):
         return 60
 
     @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
+
+    @property
     def examples(self) -> List[str]:
         return [
             "Sube el volumen",
@@ -90,6 +94,10 @@ class VolumeDownPlugin(Plugin):
     @property
     def priority(self) -> int:
         return 60
+
+    @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
 
     @property
     def examples(self) -> List[str]:
@@ -216,6 +224,10 @@ class MutePlugin(Plugin):
         return 60
 
     @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
+
+    @property
     def examples(self) -> List[str]:
         return [
             "Mutéate",
@@ -273,6 +285,10 @@ class UnmutePlugin(Plugin):
         return 60
 
     @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
+
+    @property
     def examples(self) -> List[str]:
         return [
             "Desmutéate",
@@ -328,6 +344,10 @@ class VolumeSetPlugin(Plugin):
     @property
     def priority(self) -> int:
         return 60
+
+    @property
+    def risk_policy(self) -> dict:
+        return {"policy": "fixed", "value": "medium"}
 
     @property
     def parameters(self) -> List[ParameterDefinition]:
