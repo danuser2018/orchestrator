@@ -599,6 +599,8 @@ La comunicación y comportamiento del Orchestrator y sus plugins se configuran m
 - `TIE_BREAKER_THRESHOLD` (por defecto `5.0`): Umbral de diferencia de puntuación para resolver ambigüedades.
 - `WEIGHT_RATIO` (por defecto `0.20`), `WEIGHT_PARTIAL_RATIO` (por defecto `0.30`), `WEIGHT_TOKEN_SORT_RATIO` (por defecto `0.20`), `WEIGHT_TOKEN_SET_RATIO` (por defecto `0.30`): Pesos de los algoritmos de similitud (su suma debe ser exactamente 1.0).
 - `NATS_URL` (por defecto `nats://nats:4222`): Dirección del servidor de mensajería NATS.
+- `SECURITY_SERVICE_BASE_URL` (por defecto `http://security-service:8000`): Dirección base del Security Service para registro de acciones.
+- `SECURITY_HMAC_SECRET` (por defecto `dev-secret-key-change-in-prod`): Clave secreta compartida (HMAC-SHA256) para validar los tokens de autorización en cada paso del plan.
 
 ### Robustez y Manejo de Errores
 
