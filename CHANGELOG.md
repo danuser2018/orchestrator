@@ -17,6 +17,24 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.11.0] - 2026-09-13
+
+### Añadido
+- Implementación de `AppLauncherPlugin` (`plugins/app_launcher/main.py`) con identificador canónico `open_app`:
+  - Declaración del parámetro obligatorio `command` de tipo `Command` (`required=True`).
+  - Declaración de política de riesgo dinámica por lookup en la tabla `host_commands` (`policy="lookup"`, `source="command"`, `table="host_commands"`).
+  - Estrategia híbrida de ejemplos: frases estáticas de contingencia para arranque en frío (`DEFAULT_COLD_START_EXAMPLES`) y método `load_dynamic_phrases()` para enriquecimiento reactivo vía NATS.
+  - Ejecución delegada en HAL (`host-service`) a través de `POST /v1/commands/execute` sin interacción directa con shell (aislamiento Zero-Shell).
+  - Respuestas deterministas según `TONE_GUIDE.md` (*"Aplicación abierta."*, *"Servicio no disponible."*, *"No he podido abrir la aplicación."*).
+- Extensión del cliente HTTP `HostServiceClient` (`core/host_service_client.py`):
+  - Nuevo modelo `ExecuteCommandResponse(command, status, pid)`.
+  - Nuevo método asíncrono `execute_command(command: str) -> ExecuteCommandResponse` consumiendo `POST /v1/commands/execute` con timeout de 5.0 segundos.
+- Inyección reactiva de frases dinámicas en el ciclo de vida `lifespan` de `main.py` ante eventos `HostCommandsAvailableEvent` (`event.host.commands.available`).
+- Suite de pruebas unitarias en `tests/test_app_launcher_plugin.py` y pruebas de integración en `tests/test_app_launcher_integration.py`.
+
+### Cambiado
+- Incrementada la versión de la aplicación a `3.11.0` en `main.py`.
+
 ## [3.10.0] - 2026-09-12
 
 ### Añadido

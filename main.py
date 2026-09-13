@@ -43,6 +43,16 @@ async def lifespan(app: FastAPI):
         logger.info(f"Received {len(evt.commands)} commands from host-service projection via NATS")
         command_catalog.update_from_event(evt.commands, CommandResolver.normalize_phrase)
 
+        # Inyeccion reactiva de frases en AppLauncherPlugin
+        app_launcher = plugin_manager.get_plugin("open_app")
+        if app_launcher and hasattr(app_launcher, "load_dynamic_phrases"):
+            all_phrases = []
+            for cmd in evt.commands:
+                cmd_phrases = cmd["phrases"] if isinstance(cmd, dict) else getattr(cmd, "phrases", [])
+                all_phrases.extend(cmd_phrases)
+            app_launcher.load_dynamic_phrases(all_phrases)
+            logger.info(f"Injected {len(all_phrases)} dynamic phrases into AppLauncherPlugin")
+
     try:
         await event_bus.subscribe(HostCommandsAvailableEvent, handle_host_commands)
         logger.info("Subscribed to HostCommandsAvailableEvent on event.host.commands.available")
@@ -125,7 +135,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="Local Voice Assistant Orchestrator",
-    version="3.10.0",
+    version="3.11.0",
     lifespan=lifespan
 )
 
