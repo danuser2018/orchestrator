@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     weight_token_sort_ratio: float = 0.20
     weight_token_set_ratio: float = 0.30
 
+    # CommandResolver tuning parameters
+    command_resolver_threshold_low: float = 60.0
+    command_resolver_threshold_medium: float = 65.0
+    command_resolver_threshold_high: float = 70.0
+    command_resolver_ambiguity_delta: float = 5.0
+
     @model_validator(mode="after")
     def validate_weights(self) -> 'Settings':
         total = (

@@ -17,6 +17,27 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [3.10.0] - 2026-09-12
+
+### Añadido
+- Implementación de `CommandResolver` (`core/parameter_resolution/resolvers/command.py`) para resolver parámetros de tipo `Command` transformando frases en lenguaje natural a identificadores lógicos (`name`) mediante:
+  - Normalización léxica (Unicode NFKD, strip de diacríticos y acentos, minúsculas, eliminación de signos y colapso de espacios).
+  - Coincidencia exacta de frase completa con prioridad.
+  - Similitud difusa RapidFuzz (`fuzz.ratio`) ponderada según nivel de riesgo (`low: 60.0`, `medium: 65.0`, `high: 70.0`).
+  - Detección y descarte determinista por ambigüedad (`AMBIGUITY_DELTA: 5.0`).
+  - Política Fail-Closed ante catálogo ausente o vacío.
+- Modelo de proyección en memoria `CommandCatalogProjection` (`core/command_catalog.py`) con actualización atómica y pre-normalización de frases.
+- Evento contractual `HostCommandsAvailableEvent` y `PublicCommandEntry` en `core/events.py`.
+- Suscripción en el `lifespan` de `main.py` al subject NATS `event.host.commands.available` para alimentar la proyección en memoria.
+- Registro de `CommandResolver` en `ParameterResolverRegistry`.
+- Parámetros de configuración en `Settings` (`core/config.py`): `command_resolver_threshold_low`, `command_resolver_threshold_medium`, `command_resolver_threshold_high`, `command_resolver_ambiguity_delta`.
+- Pruebas unitarias e integración en `tests/test_command_normalizer.py`, `tests/test_command_catalog_projection.py`, `tests/test_command_resolver.py`, `tests/test_parameter_engine_command.py`, `tests/test_catalog_nats_flow.py` y `tests/test_end_to_end_command_flow.py`.
+
+### Cambiado
+- Incrementada versión de la aplicación a `3.10.0` en `main.py`.
+
+---
+
 ## [3.9.0] - 2026-08-30
 
 ### Añadido
