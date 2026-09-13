@@ -22,11 +22,14 @@ class CommandCatalogProjection:
     def update_from_event(self, commands: List[PublicCommandEntry], normalizer_fn: Callable[[str], str]):
         new_catalog: Dict[str, NormalizedCommandEntry] = {}
         for entry in commands:
-            norm_phrases = [normalizer_fn(p) for p in entry.phrases if normalizer_fn(p)]
-            new_catalog[entry.name] = NormalizedCommandEntry(
-                name=entry.name,
-                risk=entry.risk,
-                phrases=entry.phrases,
+            name = entry["name"] if isinstance(entry, dict) else entry.name
+            risk = entry["risk"] if isinstance(entry, dict) else entry.risk
+            phrases = entry["phrases"] if isinstance(entry, dict) else entry.phrases
+            norm_phrases = [normalizer_fn(p) for p in phrases if normalizer_fn(p)]
+            new_catalog[name] = NormalizedCommandEntry(
+                name=name,
+                risk=risk,
+                phrases=phrases,
                 normalized_phrases=norm_phrases,
             )
         self._commands = new_catalog

@@ -1,3 +1,4 @@
+from typing import Optional
 import httpx
 import logging
 from pydantic import BaseModel, Field
@@ -7,6 +8,11 @@ logger = logging.getLogger(__name__)
 class AudioState(BaseModel):
     volume: int = Field(..., ge=0, le=100)
     muted: bool
+
+class ExecuteCommandResponse(BaseModel):
+    command: str = Field(..., description="Logical identifier of the executed command")
+    status: str = Field(default="started", description="Execution status of the command")
+    pid: Optional[int] = Field(None, description="Operating system Process ID of the spawned process")
 
 class HostServiceClient:
     def __init__(self, base_url: str = None):
@@ -72,4 +78,18 @@ class HostServiceClient:
             data = response.json()
             logger.info(f"Response received: {data}")
             return AudioState(**data)
+
+    async def execute_command(self, command: str) -> ExecuteCommandResponse:
+        """
+        Invokes host-service to execute a registered host command by its logical name.
+        Target endpoint: POST /v1/commands/execute
+        """
+        url = f"{self.base_url.rstrip('/')}/v1/commands/execute"
+        logger.info(f"Consuming URL: {url} with command: {command}")
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(url, json={"command": command})
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Response received from host-service: {data}")
+            return ExecuteCommandResponse(**data)
 
