@@ -30,10 +30,29 @@ async def lifespan(app: FastAPI):
     
     app.state.event_bus = event_bus
     
+    # Initialize CommandCatalogProjection and CommandResolver
+    from core.command_catalog import CommandCatalogProjection
+    from core.events import HostCommandsAvailableEvent
     from core.parameter_resolution import ParameterResolverRegistry, ParameterResolverEngine
-    from core.parameter_resolution.resolvers import IntegerResolver
+    from core.parameter_resolution.resolvers import IntegerResolver, CommandResolver
+
+    command_catalog = CommandCatalogProjection()
+    app.state.command_catalog = command_catalog
+
+    async def handle_host_commands(evt: HostCommandsAvailableEvent):
+        logger.info(f"Received {len(evt.commands)} commands from host-service projection via NATS")
+        command_catalog.update_from_event(evt.commands, CommandResolver.normalize_phrase)
+
+    try:
+        await event_bus.subscribe(HostCommandsAvailableEvent, handle_host_commands)
+        logger.info("Subscribed to HostCommandsAvailableEvent on event.host.commands.available")
+    except Exception as exc:
+        logger.warning(f"Failed to subscribe to HostCommandsAvailableEvent: {exc}")
+
     parameter_registry = ParameterResolverRegistry()
     parameter_registry.register(IntegerResolver())
+    command_resolver = CommandResolver(command_catalog)
+    parameter_registry.register(command_resolver)
     parameter_engine = ParameterResolverEngine(parameter_registry)
     app.state.parameter_registry = parameter_registry
     app.state.parameter_engine = parameter_engine
@@ -106,7 +125,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="Local Voice Assistant Orchestrator",
-    version="3.9.0",
+    version="3.10.0",
     lifespan=lifespan
 )
 
